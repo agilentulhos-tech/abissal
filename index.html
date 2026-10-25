@@ -1,0 +1,1339 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Abissal · o mergulho do dia</title>
+<meta name="description" content="7 perguntas por dia, 25 segundos cada. Quanto mais rara a resposta, mais fundo você afunda.">
+<meta name="theme-color" content="#04121f">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='6' fill='%2304121f'/%3E%3Cellipse cx='15' cy='18' rx='9' ry='7' fill='%23ffc94d'/%3E%3Cpath d='M23 18l6-5v10z' fill='%23ff9f43'/%3E%3Ccircle cx='11' cy='16' r='2' fill='%2304121f'/%3E%3Cpath d='M13 11q-2-6 4-7' stroke='%23ffc94d' stroke-width='1.5' fill='none'/%3E%3Ccircle cx='17' cy='4' r='2.2' fill='%236ff7e8'/%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=IBM+Plex+Mono:wght@400;600&display=swap" rel="stylesheet">
+<style>
+:root {
+  --fundo: #04121f;
+  --texto: #e8f4ff;
+  --suave: #8fb3cc;
+  --brilho: #6ff7e8;
+  --ouro: #ffc94d;
+  --coral: #ff6b8b;
+  --painel: rgba(6, 24, 40, .86);
+  --borda: rgba(111, 247, 232, .35);
+  --px: "Press Start 2P", monospace;
+  --mono: "IBM Plex Mono", ui-monospace, monospace;
+}
+* { box-sizing: border-box; }
+html, body { margin: 0; height: 100%; overflow: hidden; }
+body { background: var(--fundo); color: var(--texto); font-family: var(--mono); -webkit-tap-highlight-color: transparent; }
+button { font: inherit; color: inherit; cursor: pointer; }
+
+/* ---------- mundo (a coluna d'água inteira) ---------- */
+#mundo { position: absolute; left: 0; right: 0; top: 0; will-change: transform; transition: transform 2.6s cubic-bezier(.45,.05,.25,1); }
+#ceu { position: absolute; left: 0; right: 0; height: 700px; top: -700px;
+  background: linear-gradient(#ffd9a8 0%, #ffb1a1 35%, #9fd3f0 75%, #c8ecff 100%); overflow: hidden; }
+.sol { position: absolute; width: 110px; height: 110px; border-radius: 50%; right: 14%; bottom: 90px;
+  background: radial-gradient(#fff6d5, #ffd36b 60%, rgba(255,211,107,0) 72%); }
+.nuvem { position: absolute; height: 18px; background: rgba(255,255,255,.85); border-radius: 18px; animation: nuvem 60s linear infinite; }
+.nuvem::before { content: ""; position: absolute; left: 20%; top: -10px; width: 45%; height: 20px; background: inherit; border-radius: 20px; }
+@keyframes nuvem { from { transform: translateX(-30vw); } to { transform: translateX(130vw); } }
+#agua { position: absolute; left: 0; right: 0; top: 0; overflow-x: clip; }
+.onda { position: absolute; left: 0; right: 0; top: -14px; height: 28px; background:
+  radial-gradient(14px 10px at 14px 14px, #3aa3d6 98%, transparent) 0 0 / 28px 28px repeat-x; animation: onda 3s linear infinite; }
+@keyframes onda { to { background-position: 28px 0; } }
+.barco { position: absolute; left: 28%; top: -46px; transform: translateX(-50%); animation: balanca 4s ease-in-out infinite; }
+@keyframes balanca { 50% { transform: translateX(-50%) rotate(2deg) translateY(2px); } }
+
+.marca { position: absolute; left: 0; right: 0; border-top: 1px dashed rgba(143,179,204,.22); font-size: 11px; color: rgba(190,220,240,.7); letter-spacing: .04em; }
+.marca span { position: absolute; top: 4px; padding: 0 12px; max-width: 46vw; }
+.marca.e span { left: 0; } .marca.d span { right: 0; text-align: right; }
+.marca.zona { border-top: 1px solid rgba(111,247,232,.35); }
+.marca.zona span { font-family: var(--px); font-size: 9px; color: var(--brilho); line-height: 1.6; }
+.regua { position: absolute; right: 6px; font-size: 10px; color: rgba(143,179,204,.5); transform: translateY(-50%); }
+.bicho { position: absolute; opacity: .55; }
+.nada { animation: nada 18s linear infinite; }
+.nada.lento { animation-duration: 40s; }
+@keyframes nada { from { transform: translateX(-15vw); } to { transform: translateX(110vw); } }
+.nada.volta { animation-name: volta; }
+@keyframes volta { from { transform: translateX(110vw) scaleX(-1); } to { transform: translateX(-15vw) scaleX(-1); } }
+.flutua { animation: flutua 6s ease-in-out infinite; }
+@keyframes flutua { 50% { transform: translateY(-14px); } }
+.fundo-fossa { position: absolute; left: 0; right: 0; height: 400px; }
+
+/* partículas que sobem, presas à tela */
+#neve { position: fixed; inset: 0; pointer-events: none; overflow: hidden; }
+#neve i { position: absolute; bottom: -10px; width: 3px; height: 3px; border-radius: 50%; background: rgba(200,235,255,.35); animation: sobe linear infinite; }
+@keyframes sobe { to { transform: translateY(-110vh); } }
+
+/* ---------- mascote ---------- */
+#peixe { position: fixed; left: 50%; top: 38%; transform: translate(-50%, -50%); z-index: 5; transition: left .8s ease; pointer-events: none; }
+#peixe svg { display: block; animation: boia 2.4s ease-in-out infinite; filter: drop-shadow(0 0 10px rgba(111,247,232,.25)); }
+@keyframes boia { 50% { transform: translateY(-6px) rotate(-3deg); } }
+#peixe .fala { position: absolute; left: 70%; top: -18px; font-family: var(--px); font-size: 8px; color: var(--ouro); white-space: nowrap; opacity: 0; transition: opacity .3s; }
+#peixe .fala.on { opacity: 1; }
+body.jogando #peixe { left: 16%; }
+.bolha { position: fixed; z-index: 4; width: 8px; height: 8px; border: 1.5px solid rgba(200,240,255,.7); border-radius: 50%; pointer-events: none; animation: bolha 1.6s ease-out forwards; }
+@keyframes bolha { to { transform: translate(var(--dx), -90px); opacity: 0; } }
+
+/* ---------- HUD ---------- */
+#hud { position: fixed; top: 0; left: 0; right: 0; z-index: 10; display: flex; justify-content: space-between; align-items: flex-start; padding: 12px 16px; pointer-events: none; opacity: 0; transition: opacity .4s; }
+body.jogando #hud { opacity: 1; }
+.medidor { background: var(--painel); border: 1px solid var(--borda); border-radius: 8px; padding: 6px 12px; min-width: 96px; }
+.medidor small { display: block; font-size: 9px; letter-spacing: .14em; color: var(--suave); }
+.medidor b { font-family: var(--px); font-size: 15px; color: var(--brilho); }
+.medidor.pts b { color: var(--coral); }
+.medidor.pts { text-align: right; }
+#trilha { display: flex; gap: 5px; margin-top: 8px; }
+#trilha i { width: 12px; height: 12px; border-radius: 3px; border: 1px solid var(--borda); background: rgba(6,24,40,.7); font-style: normal; font-size: 9px; line-height: 11px; text-align: center; }
+#trilha i.agora { border-color: var(--ouro); box-shadow: 0 0 8px var(--ouro); }
+
+/* ---------- telas ---------- */
+.tela { position: fixed; inset: 0; z-index: 8; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 16px; pointer-events: none; opacity: 0; transition: opacity .35s; }
+.tela.on { opacity: 1; pointer-events: auto; }
+.card { background: var(--painel); border: 1px solid var(--borda); border-radius: 12px; padding: 20px; width: min(560px, 100%); backdrop-filter: blur(6px); -webkit-backdrop-filter: blur(6px); }
+
+#inicio { justify-content: flex-start; padding-top: 7vh; overflow-y: auto; }
+#inicio h1 { font-family: var(--px); font-size: clamp(30px, 8vw, 58px); margin: 0; color: #fff; letter-spacing: .06em;
+  text-shadow: 3px 3px 0 #ff6b8b, 6px 6px 0 rgba(4,18,31,.35); }
+#inicio .sub { font-family: var(--px); font-size: 10px; letter-spacing: .3em; color: #04304f; margin: 14px 0 6px; }
+#inicio .regra { font-size: 13px; color: #0b3a5a; margin: 0 0 max(90px, calc(40vh - 120px)); text-align: center; min-height: 0; }
+.botoes { display: flex; flex-direction: column; gap: 10px; width: min(420px, 100%); }
+.btn { font-family: var(--px); font-size: 13px; padding: 18px; background: rgba(6,24,40,.85); border: 2px solid var(--brilho); border-radius: 10px; color: var(--brilho); letter-spacing: .08em; transition: transform .1s, background .2s; }
+.btn:hover { background: rgba(111,247,232,.12); }
+.btn:active { transform: scale(.98); }
+.btn.quente { border-color: var(--coral); color: #fff; background: var(--coral); }
+.btn.quente:hover { background: #ff829d; }
+.btn.fino { font-size: 10px; padding: 12px; border-width: 1px; border-color: var(--borda); color: var(--suave); }
+.rodape { display: flex; justify-content: space-between; align-items: center; font-size: 11px; color: var(--suave); margin-top: 4px; }
+.link { background: none; border: 0; padding: 0; color: var(--suave); text-decoration: underline; font-size: 11px; }
+#comoJogar { margin-top: 12px; font-size: 12px; line-height: 1.8; color: var(--texto); display: none; }
+#comoJogar.on { display: block; }
+
+#pergunta .card { text-align: left; }
+.rotulo { font-family: var(--px); font-size: 9px; color: var(--coral); letter-spacing: .14em; }
+#pergunta h2, #revela h2 { font-size: clamp(19px, 4.6vw, 26px); line-height: 1.35; margin: 12px 0 10px; font-weight: 600; }
+.dica { font-size: 11px; color: var(--suave); letter-spacing: .08em; }
+#contagem { margin-top: 18px; font-size: 12px; color: var(--suave); background: var(--painel); border: 1px solid var(--borda); border-radius: 20px; padding: 8px 16px; }
+
+#entrada { position: fixed; left: 0; right: 0; bottom: 0; z-index: 9; padding: 16px; padding-bottom: max(16px, env(safe-area-inset-bottom)); display: flex; flex-direction: column; align-items: center; transform: translateY(110%); transition: transform .35s; }
+#entrada.on { transform: none; }
+#aviso { min-height: 18px; font-size: 12px; color: var(--ouro); margin-bottom: 8px; text-align: center; }
+.linha { display: flex; gap: 10px; align-items: stretch; width: min(640px, 100%); }
+#relogio { width: 54px; height: 54px; flex: none; position: relative; }
+#relogio svg { transform: rotate(-90deg); }
+#relogio b { position: absolute; inset: 0; display: grid; place-items: center; font-family: var(--px); font-size: 13px; }
+#resp { flex: 1; min-width: 0; font: 600 17px var(--mono); color: #fff; background: rgba(4,18,31,.92); border: 2px solid var(--borda); border-radius: 10px; padding: 0 14px; outline: none; }
+#resp:focus { border-color: var(--brilho); }
+#mandar { font-family: var(--px); font-size: 11px; padding: 0 16px; background: var(--coral); border: 0; border-radius: 10px; color: #fff; }
+.treme { animation: treme .35s; }
+@keyframes treme { 20%, 60% { transform: translateX(-8px); } 40%, 80% { transform: translateX(8px); } }
+
+#revela .card { text-align: center; }
+#revela .faixa { font-family: var(--px); font-size: clamp(16px, 4.4vw, 24px); margin: 6px 0 14px; }
+#revela .resp { font-size: 18px; font-weight: 600; }
+#revela .ganho { font-size: 13px; margin: 8px 0 4px; color: var(--brilho); }
+#revela .frase { font-size: 12px; color: var(--suave); margin-bottom: 16px; }
+.escada { display: grid; gap: 4px; margin: 0 0 18px; text-align: left; }
+.escada div { display: flex; justify-content: space-between; font-size: 11px; padding: 5px 10px; border-radius: 6px; color: var(--suave); border: 1px solid transparent; }
+.escada div.sim { color: #fff; border-color: currentColor; background: rgba(255,255,255,.06); }
+
+#fim .card { text-align: center; max-height: 92vh; overflow-y: auto; }
+#fim .grande { font-family: var(--px); font-size: clamp(26px, 7vw, 40px); color: var(--brilho); margin: 14px 0 6px; }
+#fim .zona { font-size: 13px; color: var(--ouro); margin-bottom: 14px; }
+#fim .emojis { font-size: 26px; letter-spacing: 4px; margin-bottom: 14px; }
+.lista { text-align: left; font-size: 12px; display: grid; gap: 6px; margin-bottom: 16px; }
+.lista div { display: grid; grid-template-columns: 1fr auto; gap: 8px; padding: 8px 10px; border-radius: 8px; background: rgba(255,255,255,.04); }
+.lista small { display: block; color: var(--suave); }
+.lista b { align-self: center; }
+#proximo { font-size: 11px; color: var(--suave); margin-top: 12px; }
+
+#toast { position: fixed; left: 50%; bottom: 24px; transform: translate(-50%, 300%); opacity: 0; z-index: 20; background: var(--ouro); color: #04121f; font-weight: 600; font-size: 13px; padding: 10px 16px; border-radius: 8px; transition: transform .3s; }
+#toast.on { transform: translate(-50%, 0); opacity: 1; }
+
+/* ---------- festa do baiacu ---------- */
+body.festa #peixe, body.festa #hud { display: none; }
+.btn.ouro { border-color: var(--ouro); color: var(--ouro); }
+#festa .card, #podio .card, #modos .card { text-align: center; max-height: 92vh; overflow-y: auto; }
+#festa h2, #podio h2, #modos h2 { font-family: var(--px); font-size: clamp(16px, 4.6vw, 22px); color: var(--ouro); margin: 6px 0 8px; line-height: 1.5; }
+.sub2 { font-size: 12px; color: var(--suave); margin-bottom: 16px; }
+.jog { display: flex; gap: 8px; margin-bottom: 8px; align-items: center; }
+.jog input { flex: 1; min-width: 0; font: 600 15px var(--mono); color: #fff; background: rgba(4,18,31,.92); border: 1px solid var(--borda); border-radius: 8px; padding: 10px 12px; outline: none; }
+.jog input:focus { border-color: var(--brilho); }
+.jog .tipo { font-size: 18px; width: 30px; }
+.jog button { background: none; border: 1px solid var(--borda); border-radius: 8px; width: 38px; height: 38px; color: var(--suave); }
+.mais { display: flex; gap: 8px; margin: 4px 0 14px; }
+.mais .btn { flex: 1; }
+.regras { font-size: 11px; color: var(--suave); line-height: 1.8; text-align: left; margin-top: 14px; }
+
+#arena { justify-content: flex-start; gap: 12px; overflow-y: auto; padding-top: 14px; padding-bottom: 120px; }
+#arena .card { padding: 14px 16px; text-align: center; }
+#arena h2 { font-size: clamp(16px, 4.2vw, 21px); margin: 8px 0 0; font-weight: 600; line-height: 1.35; }
+#bSairFesta { position: fixed; top: 10px; left: 10px; z-index: 12; font-size: 10px; padding: 8px 10px; }
+.roda { display: flex; flex-wrap: wrap; gap: 8px; justify-content: center; width: min(640px, 100%); }
+.cj { background: var(--painel); border: 1px solid var(--borda); border-radius: 10px; padding: 8px 10px; min-width: 100px; font-size: 12px; transition: transform .25s, box-shadow .25s, border-color .25s, opacity .3s; }
+.cj b { display: block; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 130px; }
+.cj .vidas { font-size: 11px; letter-spacing: 1px; margin-top: 2px; min-height: 14px; }
+.cj .barra { height: 4px; background: rgba(255,255,255,.1); border-radius: 2px; margin-top: 6px; overflow: hidden; }
+.cj .barra i { display: block; height: 100%; width: 0; background: var(--brilho); transition: width .4s; }
+.cj.vez { border-color: var(--ouro); box-shadow: 0 0 14px rgba(255,201,77,.5); transform: translateY(-3px); }
+.cj.fora { opacity: .3; }
+.cj.fora b { text-decoration: line-through; }
+#palco { position: relative; height: 170px; display: grid; place-items: center; width: 100%; }
+#baiacu { width: 120px; transform: scale(var(--s, 1)); transition: transform .25s ease-out; filter: drop-shadow(0 0 16px rgba(255,201,77,.25)); }
+#baiacu.nervoso { animation: nervoso .12s linear infinite; }
+@keyframes nervoso { 50% { translate: 2px -2px; } }
+#baiacu.pum { animation: pum .5s ease-out forwards; }
+@keyframes pum { 30% { transform: scale(2.4); opacity: 1; } 100% { transform: scale(2.8); opacity: 0; } }
+#segura { position: absolute; bottom: 0; font-family: var(--px); font-size: 10px; color: var(--ouro); text-align: center; line-height: 1.6; }
+.estilhaco { position: absolute; width: 8px; height: 8px; border-radius: 50%; background: var(--ouro); left: 50%; top: 45%; animation: estilhaco .8s ease-out forwards; }
+@keyframes estilhaco { to { transform: translate(var(--x), var(--y)); opacity: 0; } }
+#fLog { font-size: 12px; color: var(--texto); min-height: 18px; text-align: center; }
+.usadas { display: flex; flex-wrap: wrap; gap: 6px; justify-content: center; width: min(640px, 100%); }
+.usadas span { font-size: 11px; padding: 4px 9px; border-radius: 12px; background: rgba(255,255,255,.05); border: 1px solid currentColor; }
+#fEntrada { position: fixed; left: 0; right: 0; bottom: 0; z-index: 9; padding: 12px 16px; padding-bottom: max(16px, env(safe-area-inset-bottom)); display: flex; flex-direction: column; align-items: center; background: linear-gradient(transparent, rgba(4,18,31,.9) 30%); transform: translateY(110%); transition: transform .3s; }
+#fEntrada.on { transform: none; }
+#fVez { font-family: var(--px); font-size: 10px; color: var(--ouro); margin-bottom: 6px; }
+#fAviso { min-height: 16px; font-size: 12px; color: var(--coral); margin-bottom: 6px; }
+#fResp { flex: 1; min-width: 0; font: 600 17px var(--mono); color: #fff; background: rgba(4,18,31,.92); border: 2px solid var(--borda); border-radius: 10px; padding: 12px 14px; outline: none; }
+#fResp:focus { border-color: var(--ouro); }
+#fMandar { font-family: var(--px); font-size: 11px; padding: 0 16px; background: var(--ouro); border: 0; border-radius: 10px; color: #04121f; }
+#online .card { text-align: center; max-height: 92vh; overflow-y: auto; }
+#online h2 { font-family: var(--px); font-size: clamp(16px, 4.6vw, 22px); color: var(--ouro); margin: 6px 0 8px; line-height: 1.5; }
+#online .rank { display: grid; gap: 6px; margin: 14px 0; text-align: left; font-size: 13px; }
+#online .rank div { display: flex; justify-content: space-between; gap: 8px; padding: 8px 12px; border-radius: 8px; background: rgba(255,255,255,.05); }
+#online .rank.final div:first-child { border: 1px solid var(--ouro); color: var(--ouro); }
+#online select { width: 100%; font: 600 14px var(--mono); color: #fff; background: rgba(4,18,31,.92); border: 1px solid var(--borda); border-radius: 8px; padding: 10px; margin-bottom: 8px; }
+.codigo { font-family: var(--px); font-size: 34px; letter-spacing: .2em; color: var(--brilho); margin: 8px 0 14px; }
+.linha2 { display: flex; gap: 8px; margin-top: 10px; }
+.linha2 input { flex: 1; min-width: 0; font: 600 15px var(--mono); color: #fff; background: rgba(4,18,31,.92); border: 1px solid var(--borda); border-radius: 8px; padding: 12px; outline: none; text-transform: uppercase; letter-spacing: .2em; }
+.linha2 .btn { padding: 12px 16px; }
+#nomeOnline { width: 100%; font: 600 15px var(--mono); color: #fff; background: rgba(4,18,31,.92); border: 1px solid var(--borda); border-radius: 8px; padding: 12px; outline: none; margin-bottom: 10px; }
+#rSala:empty { display: none; }
+#podio .rank { display: grid; gap: 6px; margin: 14px 0 18px; text-align: left; font-size: 13px; }
+#podio .rank div { display: flex; justify-content: space-between; padding: 8px 12px; border-radius: 8px; background: rgba(255,255,255,.05); }
+#podio .rank div:first-child { border: 1px solid var(--ouro); color: var(--ouro); }
+
+/* ---------- outros modos ---------- */
+.cats { display: grid; grid-template-columns: repeat(2, 1fr); gap: 8px; margin-bottom: 14px; }
+.cats .btn { font-size: 10px; padding: 12px 6px; line-height: 1.6; }
+.cats .btn small { display: block; font-family: var(--mono); font-size: 10px; color: var(--suave); letter-spacing: 0; }
+#modos .regras { margin: 10px 0 0; }
+#mLista { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 12px; max-height: 28vh; overflow-y: auto; }
+#mLista:empty { display: none; }
+#mLista span { font-size: 11px; padding: 4px 9px; border-radius: 12px; background: rgba(255,255,255,.05); border: 1px solid currentColor; }
+#convite { display: none; text-align: center; border-color: var(--ouro); }
+#convite.on { display: block; }
+#convite b { font-family: var(--px); font-size: 11px; color: var(--ouro); line-height: 1.7; }
+#convite p { font-size: 12px; margin: 8px 0 12px; }
+
+@media (max-width: 520px) {
+  .cj { min-width: 0; flex: 1 1 calc(50% - 8px); }
+  #palco { height: 140px; }
+  #baiacu { width: 96px; }
+  .marca span { max-width: 60vw; font-size: 10px; }
+  body.jogando #peixe { left: 12%; }
+  #peixe svg { width: 58px; }
+  .medidor { min-width: 80px; }
+  .medidor b { font-size: 12px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  #mundo { transition-duration: .01s; }
+  .nada, .nuvem, .onda, #neve i { animation: none; }
+}
+</style>
+</head>
+<body>
+
+<div id="mundo">
+  <div id="ceu">
+    <div class="sol"></div>
+    <div class="nuvem" style="top:90px;width:90px;animation-delay:-12s"></div>
+    <div class="nuvem" style="top:170px;width:130px;animation-delay:-40s;animation-duration:85s"></div>
+    <div class="nuvem" style="top:250px;width:70px;animation-delay:-25s;animation-duration:70s"></div>
+  </div>
+  <div id="agua"></div>
+</div>
+<div id="neve"></div>
+
+<div id="peixe">
+  <div class="fala">glub glub!</div>
+  <svg width="74" height="60" viewBox="0 0 74 60" aria-hidden="true">
+    <path d="M30 16 Q24 2 36 1" stroke="#ffc94d" stroke-width="2.5" fill="none" stroke-linecap="round"/>
+    <circle cx="37" cy="2.5" r="4" fill="#6ff7e8"><animate attributeName="opacity" values="1;.45;1" dur="1.6s" repeatCount="indefinite"/></circle>
+    <path d="M52 34 L72 20 L68 34 L72 48 Z" fill="#ff9f43"/>
+    <ellipse cx="32" cy="34" rx="24" ry="19" fill="#ffc94d"/>
+    <path d="M14 40 Q32 54 50 40 Q32 48 14 40Z" fill="#ffe39a"/>
+    <path d="M30 34 Q38 30 42 38 Q36 40 30 34Z" fill="#ff9f43"/>
+    <circle cx="20" cy="29" r="6.5" fill="#fff"/>
+    <circle cx="18.5" cy="29.5" r="3.6" fill="#04121f"/>
+    <circle cx="17.3" cy="28" r="1.2" fill="#fff"/>
+    <path d="M9 39 Q12 42 15 39" stroke="#04121f" stroke-width="1.8" fill="none" stroke-linecap="round"/>
+  </svg>
+</div>
+
+<div id="hud">
+  <div class="medidor"><small>PROFUNDIDADE</small><b id="hProf">0 m</b></div>
+  <div><div id="trilha"></div></div>
+  <div class="medidor pts"><small>PONTOS</small><b id="hPts">0</b></div>
+</div>
+
+<section id="inicio" class="tela on">
+  <h1>ABISSAL</h1>
+  <div class="sub">O MERGULHO DO DIA</div>
+  <p class="regra">7 perguntas · 25 segundos cada · resposta rara afunda mais</p>
+  <div class="botoes">
+    <div id="convite" class="card">
+      <b>⚔ VOCÊ FOI DESAFIADO</b>
+      <p id="cTexto"></p>
+      <button class="btn quente" id="bAceitar" style="width:100%">ACEITAR O DESAFIO</button>
+    </div>
+    <button class="btn quente" id="bDiario">▼ COMEÇAR A DESCIDA ▼</button>
+    <button class="btn ouro" id="bOnline">👥 JOGAR ONLINE COM AMIGOS</button>
+    <button class="btn fino" id="bInfinito">MODO INFINITO ∞</button>
+    <button class="btn fino" id="bModos">🌊 OUTROS MODOS</button>
+    <button class="btn fino ouro" id="bFesta">🐡 FESTA DO BAIACU · NO MESMO CELULAR</button>
+    <div class="rodape"><span id="nDia">MERGULHO #1</span><button class="link" id="bComo">como jogar</button></div>
+    <div id="comoJogar" class="card">
+      Todo dia, 7 perguntas. As mesmas para todo mundo.<br>
+      Você tem 25 segundos para dar UMA resposta.<br>
+      Resposta óbvia boia. Resposta rara afunda.<br>
+      Aquela que parece esperta? O cardume pensou igual.<br>
+      Cada ponto afunda você 10 metros. 700 pontos é o fundo da fossa.<br>
+      Um mergulho por dia. Sem segunda chance.
+    </div>
+  </div>
+</section>
+
+<section id="pergunta" class="tela">
+  <div class="card">
+    <div class="rotulo" id="pNum">PERGUNTA 1 DE 7</div>
+    <h2 id="pTexto"></h2>
+    <div class="dica" id="pDica">▼ resposta rara afunda mais ▼</div>
+    <div id="mLista"></div>
+  </div>
+  <div id="contagem">descendo · o relógio começa em 3</div>
+</section>
+
+<div id="entrada">
+  <div id="aviso"></div>
+  <form class="linha" id="form" autocomplete="off">
+    <div id="relogio">
+      <svg width="54" height="54" viewBox="0 0 54 54"><circle cx="27" cy="27" r="23" stroke="rgba(143,179,204,.25)" stroke-width="4" fill="rgba(4,18,31,.9)"/><circle id="arco" cx="27" cy="27" r="23" stroke="#6ff7e8" stroke-width="4" fill="none" stroke-dasharray="144.5" stroke-dashoffset="0" stroke-linecap="round"/></svg>
+      <b id="seg">25</b>
+    </div>
+    <input id="resp" maxlength="60" placeholder="sua resposta..." autocapitalize="off" spellcheck="false" enterkeyhint="go">
+    <button id="mandar" type="submit">MERGULHAR</button>
+  </form>
+</div>
+
+<section id="revela" class="tela">
+  <div class="card">
+    <div class="faixa" id="rFaixa"></div>
+    <div class="resp" id="rResp"></div>
+    <div class="ganho" id="rGanho"></div>
+    <div class="frase" id="rFrase"></div>
+    <div class="escada" id="rEscada"></div>
+    <div class="lista" id="rSala"></div>
+    <button class="btn quente" id="bDescer" style="width:100%">DESCER ▼</button>
+  </div>
+</section>
+
+<section id="fim" class="tela">
+  <div class="card">
+    <div class="rotulo" id="fTitulo">MERGULHO #1 · FIM</div>
+    <div class="grande" id="fProf">0 m</div>
+    <div class="zona" id="fZona"></div>
+    <div class="emojis" id="fEmojis"></div>
+    <div class="lista" id="fLista"></div>
+    <div class="botoes" style="width:100%">
+      <button class="btn quente" id="bCompartilhar">COMPARTILHAR</button>
+      <button class="btn ouro" id="bDesafiar">⚔ DESAFIAR UM AMIGO</button>
+      <button class="btn fino" id="bDeNovo">MODO INFINITO ∞</button>
+      <button class="btn fino" id="bSuperficie">VOLTAR À SUPERFÍCIE</button>
+    </div>
+    <div id="proximo"></div>
+  </div>
+</section>
+
+<section id="online" class="tela">
+  <div class="card">
+    <h2>👥 SALA ONLINE</h2>
+    <div id="oEntrar">
+      <div class="sub2">cada um no seu celular · as mesmas 7 perguntas ao mesmo tempo · placar da sala ao vivo</div>
+      <input id="nomeOnline" maxlength="16" placeholder="seu nome" autocomplete="off">
+      <button class="btn quente" id="bCriarSala" style="width:100%">CRIAR UMA SALA</button>
+      <div class="linha2">
+        <input id="oCodigo" maxlength="4" placeholder="CÓDIGO" autocomplete="off">
+        <button class="btn fino" id="bEntrarSala">ENTRAR</button>
+      </div>
+    </div>
+    <div id="oLobby" style="display:none">
+      <div class="rotulo">CÓDIGO DA SALA</div>
+      <div class="codigo" id="oCod">----</div>
+      <button class="btn ouro" id="bConvidar" style="width:100%">📲 CHAMAR OS AMIGOS</button>
+      <div id="oFinal"></div>
+      <div class="rotulo" style="margin-top:16px">NA SALA</div>
+      <div class="rank" id="oJogadores"></div>
+      <div id="oHost">
+        <select id="oTema"></select>
+        <button class="btn quente" id="bComecarSala" style="width:100%">COMEÇAR A PARTIDA ▶</button>
+      </div>
+      <div class="sub2" id="oEspera" style="margin:10px 0 0"></div>
+    </div>
+    <button class="btn fino" id="bSairSala" style="width:100%;margin-top:12px">SAIR</button>
+  </div>
+</section>
+
+<section id="modos" class="tela">
+  <div class="card">
+    <h2>🌊 OUTROS MERGULHOS</h2>
+    <div class="botoes" style="width:100%">
+      <button class="btn quente" id="bMaratona">⏱ MARATONA · 60 SEGUNDOS</button>
+      <button class="btn ouro" id="bSemVolta">☠ SEM VOLTA</button>
+    </div>
+    <div class="regras">
+      <b>Maratona:</b> uma pergunta só e 60 segundos. Mande quantas respostas diferentes conseguir; cada uma afunda pela raridade.<br>
+      <b>Sem volta:</b> perguntas sem fim. Uma resposta de plâncton ou o tempo esgotado encerram o mergulho.
+    </div>
+    <div class="sub2" id="recordes" style="margin:10px 0 0"></div>
+    <div class="rotulo" style="margin:18px 0 10px">PACOTES TEMÁTICOS · 7 PERGUNTAS</div>
+    <div class="cats" id="cats"></div>
+    <button class="btn fino" id="bVoltarModos" style="width:100%">VOLTAR</button>
+  </div>
+</section>
+
+<section id="festa" class="tela">
+  <div class="card">
+    <h2>🐡 FESTA DO BAIACU</h2>
+    <div class="sub2">passe o baiacu antes que ele estoure na sua mão</div>
+    <div id="listaJog"></div>
+    <div class="mais">
+      <button class="btn fino" id="bMaisJog">+ PESSOA</button>
+      <button class="btn fino" id="bMaisRobo">+ ROBÔ</button>
+    </div>
+    <div class="botoes" style="width:100%">
+      <button class="btn quente" id="bComecarFesta">ENCHER O BAIACU ▶</button>
+      <button class="btn fino" id="bVoltarFesta">VOLTAR</button>
+    </div>
+    <div class="regras">
+      Cada rodada tem uma pergunta. Na sua vez, dê uma resposta e o baiacu passa para o próximo.<br>
+      Ninguém pode repetir resposta na mesma pergunta.<br>
+      O baiacu estoura num momento secreto. Estourou na sua mão? Perde um ❤.<br>
+      Resposta rara enche sua barra. Barra cheia vale um ❤ extra.<br>
+      Quem sobrar boiando por último ganha. Dá para jogar passando o celular.
+    </div>
+  </div>
+</section>
+
+<section id="arena" class="tela">
+  <button class="btn fino" id="bSairFesta">✕ SAIR</button>
+  <div class="card" style="width:min(640px,100%)">
+    <div class="rotulo" id="aRodada">RODADA 1</div>
+    <h2 id="aPerg"></h2>
+  </div>
+  <div class="roda" id="roda"></div>
+  <div id="palco">
+    <svg id="baiacu" viewBox="-60 -60 120 120" aria-hidden="true"></svg>
+    <div id="segura"></div>
+  </div>
+  <div id="fLog"></div>
+  <div class="usadas" id="usadas"></div>
+</section>
+
+<div id="fEntrada">
+  <div id="fVez"></div>
+  <div id="fAviso"></div>
+  <form class="linha" id="fForm" autocomplete="off">
+    <input id="fResp" maxlength="60" placeholder="sua resposta..." autocapitalize="off" spellcheck="false" enterkeyhint="send">
+    <button id="fMandar" type="submit">PASSAR</button>
+  </form>
+</div>
+
+<section id="podio" class="tela">
+  <div class="card">
+    <div class="rotulo">FESTA DO BAIACU · FIM</div>
+    <h2 id="pVencedor"></h2>
+    <div class="sub2" id="pSub"></div>
+    <div class="rank" id="pRank"></div>
+    <div class="botoes" style="width:100%">
+      <button class="btn quente" id="bRevanche">REVANCHE 🐡</button>
+      <button class="btn fino" id="bTrocarJog">TROCAR JOGADORES</button>
+      <button class="btn fino" id="bSuperficie2">VOLTAR À SUPERFÍCIE</button>
+    </div>
+  </div>
+</section>
+
+<div id="toast"></div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.js"></script>
+<script src="perguntas.js"></script>
+<script src="perguntas2.js"></script>
+<script>
+(() => {
+  const PX_POR_M = 1.15;          // pixels por metro na coluna d'água
+  const FUNDO = 7000;             // metros: 700 pontos
+  const SEGUNDOS = 25;
+  const QTD = 7;
+  const DIA_ZERO = new Date(2026, 9, 24); // mergulho #1
+
+  const FAIXAS = [
+    { nome: "PLÂNCTON",          pts: 10,  cor: "#9fd3f0", emoji: "🫧", frase: "A resposta que todo mundo solta primeiro." },
+    { nome: "ESPERTO DEMAIS",    pts: 15,  cor: "#ffc94d", emoji: "🐟", frase: "Parecia original. O cardume inteiro pensou igual." },
+    { nome: "CARDUME",           pts: 30,  cor: "#6ff7e8", emoji: "🐠", frase: "Boa, mas você nadou junto com a galera." },
+    { nome: "RARO",              pts: 60,  cor: "#7d9bff", emoji: "🐙", frase: "Pouca gente foi por esse caminho." },
+    { nome: "LADO B",            pts: 85,  cor: "#c38bff", emoji: "🦑", frase: "Coisa de quem conhece o fundo do assunto." },
+    { nome: "UM EM UM MILHÃO",   pts: 100, cor: "#ff6b8b", emoji: "🐋", frase: "Ninguém mais desceu tão fundo." },
+  ];
+  const ESGOTOU = { nome: "TEMPO ESGOTADO", pts: 0, cor: "#8fb3cc", emoji: "💨", frase: "O relógio zerou e você ficou boiando." };
+
+  const MARCAS = [
+    [40,   "a luz vermelha some: tudo fica azul", "e"],
+    [200,  "fim da zona iluminada", "d"],
+    [332,  "recorde de mergulho com cilindro: 332 m", "e"],
+    [500,  "pinguins-imperadores chegam até aqui", "d"],
+    [700,  "pressão: 71 vezes a da superfície", "e"],
+    [1000, "ZONA DA MEIA-NOITE · nenhum raio de sol", "d", 1],
+    [1500, "peixes-diabo acendem suas iscas de luz", "e"],
+    [2000, "cachalotes caçam lulas-gigantes no escuro", "d"],
+    [2500, "a água está a uns 3 °C", "e"],
+    [3000, "lulas-colossais têm olhos do tamanho de uma bola", "d"],
+    [3800, "o Titanic descansa nesta profundidade", "e"],
+    [4000, "ZONA ABISSAL · a planície sem fim", "d", 1],
+    [5000, "pepinos-do-mar passeiam pelo lodo", "e"],
+    [6000, "ZONA HADAL · o nome vem de Hades", "d", 1],
+    [6500, "poucos submarinos aguentam esta pressão", "e"],
+    [7000, "O FUNDO DA FOSSA · mergulho perfeito", "d", 1],
+  ];
+
+  const ZONAS = [
+    [200, "zona iluminada"], [1000, "zona do crepúsculo"], [4000, "zona da meia-noite"],
+    [6000, "zona abissal"], [7000, "zona hadal"], [Infinity, "o fundo da fossa"],
+  ];
+
+  const $ = (id) => document.getElementById(id);
+  const fmt = (n) => n.toLocaleString("pt-BR");
+  const guardar = (k, v) => { try { localStorage.setItem(k, JSON.stringify(v)); } catch (e) {} };
+  const ler = (k) => { try { return JSON.parse(localStorage.getItem(k)); } catch (e) { return null; } };
+
+  // ---------- normalização e busca de respostas ----------
+  function norm(s) {
+    return s.toLowerCase().normalize("NFD").replace(/[̀-ͯ]/g, "")
+      .replace(/[^a-z0-9 ]+/g, " ").replace(/^(o|a|os|as|um|uma|the) /, "").replace(/ iii$/, " 3").replace(/ ii$/, " 2").replace(/ i$/, " 1")
+      .replace(/\s+/g, "")
+      .replace(/ph/g, "f").replace(/y/g, "i").replace(/w/g, "v").replace(/k/g, "c")
+      .replace(/(.)\1+/g, "$1").replace(/saurus$/, "sauro").replace(/surus$/, "sauro");
+  }
+  function lev(a, b) {
+    if (Math.abs(a.length - b.length) > 2) return 9;
+    const m = Array.from({ length: a.length + 1 }, (_, i) => [i]);
+    for (let j = 1; j <= b.length; j++) m[0][j] = j;
+    for (let i = 1; i <= a.length; i++)
+      for (let j = 1; j <= b.length; j++)
+        m[i][j] = Math.min(m[i-1][j] + 1, m[i][j-1] + 1, m[i-1][j-1] + (a[i-1] === b[j-1] ? 0 : 1));
+    return m[a.length][b.length];
+  }
+  function indexar(p) {
+    if (p._idx) return p._idx;
+    const idx = new Map();
+    p.t.forEach((faixa, tier) => {
+      faixa.split("|").filter(Boolean).forEach((item) => {
+        const nomes = item.split("/");
+        nomes.forEach((n) => { const k = norm(n); if (k && !idx.has(k)) idx.set(k, { tier, nome: nomes[0] }); });
+      });
+    });
+    return (p._idx = idx);
+  }
+  function achar(p, texto) {
+    const idx = indexar(p);
+    const k = norm(texto);
+    if (!k) return null;
+    if (idx.has(k)) return idx.get(k);
+    if (k.endsWith("s") && idx.has(k.slice(0, -1))) return idx.get(k.slice(0, -1));
+    if (idx.has(k + "s")) return idx.get(k + "s");
+    const limite = k.length >= 9 ? 2 : k.length >= 5 ? 1 : 0;
+    if (!limite) return null;
+    let melhor = null, dist = limite + 1;
+    for (const [chave, v] of idx) {
+      const d = lev(k, chave);
+      if (d < dist) { dist = d; melhor = v; }
+    }
+    return melhor;
+  }
+
+  // ---------- sorteio do dia ----------
+  function rng(seed) {
+    return () => { seed |= 0; seed = seed + 0x6D2B79F5 | 0; let t = Math.imul(seed ^ seed >>> 15, 1 | seed);
+      t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t; return ((t ^ t >>> 14) >>> 0) / 4294967296; };
+  }
+  function embaralhar(arr, r) { const a = arr.slice(); for (let i = a.length - 1; i > 0; i--) { const j = Math.floor(r() * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; } return a; }
+  function numeroDoDia() {
+    const hoje = new Date(); hoje.setHours(0, 0, 0, 0);
+    return Math.max(1, Math.round((hoje - DIA_ZERO) / 864e5) + 1);
+  }
+  function perguntasDoDia(n) {
+    // ciclos de embaralhamento: ninguém vê a mesma pergunta duas vezes até o banco acabar
+    const total = PERGUNTAS.length, ini = (n - 1) * QTD, sel = [];
+    for (let i = ini; i < ini + QTD; i++) {
+      const ciclo = Math.floor(i / total);
+      sel.push(embaralhar(PERGUNTAS.map((_, x) => x), rng(9001 + ciclo))[i % total]);
+    }
+    return sel;
+  }
+
+  // ---------- montar o oceano ----------
+  const agua = $("agua"), mundo = $("mundo");
+  const altura = FUNDO * PX_POR_M + 900;
+  agua.style.height = altura + "px";
+  agua.style.background = `linear-gradient(#3aa3d6 0px, #1b6fa3 ${180*PX_POR_M}px, #0d3f66 ${700*PX_POR_M}px, #072640 ${1500*PX_POR_M}px, #041726 ${3500*PX_POR_M}px, #020b14 ${6000*PX_POR_M}px, #010509 100%)`;
+  const y = (m) => m * PX_POR_M;
+
+  agua.insertAdjacentHTML("beforeend", `<div class="onda"></div>
+    <svg class="barco" width="150" height="62" viewBox="0 0 150 62" aria-hidden="true">
+      <path d="M8 40 H142 L126 58 H24 Z" fill="#20384d"/><rect x="40" y="24" width="52" height="16" fill="#e8f4ff"/>
+      <rect x="46" y="28" width="8" height="7" fill="#3aa3d6"/><rect x="60" y="28" width="8" height="7" fill="#3aa3d6"/><rect x="74" y="28" width="8" height="7" fill="#3aa3d6"/>
+      <rect x="104" y="6" width="3" height="34" fill="#20384d"/><path d="M107 6 L124 11 L107 16Z" fill="#ff6b8b"/>
+      <path d="M106 18 Q92 40 76 62" stroke="#c8ecff" stroke-width="1" fill="none" stroke-dasharray="3 3"/></svg>`);
+
+  MARCAS.forEach(([m, txt, lado, zona]) => {
+    agua.insertAdjacentHTML("beforeend", `<div class="marca ${lado}${zona ? " zona" : ""}" style="top:${y(m)}px"><span>${txt} · ${fmt(m)} m</span></div>`);
+  });
+  for (let m = 500; m <= FUNDO; m += 500) agua.insertAdjacentHTML("beforeend", `<div class="regua" style="top:${y(m)}px">${fmt(m)}</div>`);
+
+  const svgPeixinho = (c) => `<svg width="22" height="10" viewBox="0 0 22 10"><ellipse cx="9" cy="5" rx="8" ry="4" fill="${c}"/><path d="M16 5 L22 0 V10Z" fill="${c}"/></svg>`;
+  const bichos = [
+    // cardumes perto da superfície
+    [60,  "nada", `<div style="display:flex;gap:10px;flex-wrap:wrap;width:90px">${svgPeixinho("#0a3b5c").repeat(7)}</div>`],
+    [150, "nada volta lento", `<div style="display:flex;gap:8px;flex-wrap:wrap;width:70px">${svgPeixinho("#0b4166").repeat(5)}</div>`],
+    [420, "nada lento", `<svg width="120" height="44" viewBox="0 0 120 44"><path d="M4 22 Q40 0 90 18 L118 6 L110 22 L118 38 L90 26 Q40 44 4 22Z" fill="#082c48"/></svg>`],
+    // águas-vivas
+    [800, "flutua", `<svg width="40" height="64" viewBox="0 0 40 64"><path d="M2 22 Q20 -8 38 22Z" fill="#c38bff" opacity=".7"/><path d="M8 22 q3 14 0 30 M16 22 q-3 18 0 38 M24 22 q3 18 0 38 M32 22 q-3 14 0 30" stroke="#c38bff" stroke-width="1.5" fill="none" opacity=".6"/></svg>`, "70%"],
+    [1150, "flutua", `<svg width="28" height="46" viewBox="0 0 40 64"><path d="M2 22 Q20 -8 38 22Z" fill="#6ff7e8" opacity=".6"/><path d="M10 22 q3 14 0 30 M20 22 q-3 18 0 38 M30 22 q3 14 0 30" stroke="#6ff7e8" stroke-width="1.5" fill="none" opacity=".5"/></svg>`, "22%"],
+    // peixe-diabo
+    [1550, "nada lento", `<svg width="70" height="54" viewBox="0 0 70 54"><path d="M24 14 Q20 2 8 4" stroke="#6b7c8c" stroke-width="2" fill="none"/><circle cx="7" cy="4" r="4" fill="#6ff7e8"><animate attributeName="opacity" values="1;.3;1" dur="2s" repeatCount="indefinite"/></circle><ellipse cx="34" cy="30" rx="24" ry="18" fill="#1a2a38"/><path d="M56 30 L70 18 V42Z" fill="#1a2a38"/><path d="M12 34 L18 30 L22 36 L26 30 L30 36" stroke="#cfe" stroke-width="1.5" fill="none"/></svg>`],
+    // cachalote
+    [2050, "nada volta lento", `<svg width="240" height="80" viewBox="0 0 240 80"><path d="M6 30 Q6 8 60 8 H170 Q200 10 214 34 L238 20 L232 44 L238 66 L212 50 Q190 72 120 72 H50 Q6 72 6 30Z" fill="#0e2232"/><circle cx="34" cy="30" r="2.5" fill="#6b7c8c"/></svg>`],
+    // lula
+    [2250, "flutua", `<svg width="60" height="120" viewBox="0 0 60 120"><path d="M30 0 L48 30 Q50 56 30 62 Q10 56 12 30Z" fill="#3a1f30"/><path d="M18 60 q-6 30 4 58 M26 62 q-2 30 2 54 M34 62 q2 30 -2 54 M42 60 q6 30 -4 58" stroke="#3a1f30" stroke-width="3" fill="none"/><circle cx="24" cy="46" r="3" fill="#ff6b8b" opacity=".7"/></svg>`, "72%"],
+    // naufrágio
+    [3820, "", `<svg width="260" height="80" viewBox="0 0 260 80"><path d="M0 70 L20 40 H230 L250 64 L240 74 H10Z" fill="#0f1a22" transform="rotate(-4 130 50)"/><rect x="80" y="18" width="16" height="26" fill="#0f1a22"/><rect x="120" y="14" width="16" height="30" fill="#0f1a22"/><rect x="160" y="22" width="16" height="22" fill="#0f1a22"/></svg>`, "55%"],
+    // pepino-do-mar e isópode na planície
+    [5050, "nada lento", `<svg width="60" height="20" viewBox="0 0 60 20"><path d="M2 14 Q30 -2 58 12 Q30 22 2 14Z" fill="#4a2a3a"/></svg>`],
+    [6400, "nada volta lento", `<svg width="44" height="26" viewBox="0 0 44 26"><ellipse cx="22" cy="14" rx="20" ry="11" fill="#2a3440"/><path d="M8 8 V20 M14 5 V23 M20 3 V25 M26 3 V25 M32 5 V23" stroke="#1a222a" stroke-width="2"/></svg>`],
+  ];
+  bichos.forEach(([m, cls, svg, left]) => {
+    agua.insertAdjacentHTML("beforeend", `<div class="bicho ${cls}" style="top:${y(m)}px;${left ? "left:" + left : "left:0"}">${svg}</div>`);
+  });
+  agua.insertAdjacentHTML("beforeend", `<svg class="fundo-fossa" style="top:${y(FUNDO) - 30}px" viewBox="0 0 400 100" preserveAspectRatio="none"><path d="M0 0 L30 20 L60 8 L100 34 L140 14 L180 40 L220 18 L260 36 L300 10 L340 28 L370 6 L400 22 V100 H0Z" fill="#081018"/></svg>`);
+
+  const neve = $("neve");
+  for (let i = 0; i < 26; i++) {
+    const p = document.createElement("i");
+    p.style.left = Math.random() * 100 + "%";
+    p.style.animationDuration = 10 + Math.random() * 16 + "s";
+    p.style.animationDelay = -Math.random() * 20 + "s";
+    p.style.opacity = .3 + Math.random() * .7;
+    neve.appendChild(p);
+  }
+
+  function camera(prof, instantaneo) {
+    const alvo = innerHeight * 0.38 - y(prof);
+    if (instantaneo) mundo.style.transition = "none";
+    mundo.style.transform = `translateY(${alvo}px)`;
+    if (instantaneo) { mundo.offsetHeight; mundo.style.transition = ""; }
+  }
+  addEventListener("resize", () => camera(estado ? estado.prof : 0, true));
+
+  function bolhas(n = 6) {
+    const r = $("peixe").getBoundingClientRect();
+    for (let i = 0; i < n; i++) setTimeout(() => {
+      const b = document.createElement("div");
+      b.className = "bolha";
+      b.style.left = r.left + r.width * .2 + Math.random() * 14 + "px";
+      b.style.top = r.top + 6 + "px";
+      b.style.setProperty("--dx", (Math.random() * 30 - 15) + "px");
+      document.body.appendChild(b);
+      setTimeout(() => b.remove(), 1700);
+    }, i * 120);
+  }
+  function falar() { const f = document.querySelector("#peixe .fala"); f.classList.add("on"); bolhas(4); setTimeout(() => f.classList.remove("on"), 1400); }
+
+  // ---------- telas ----------
+  const telas = ["inicio", "pergunta", "revela", "fim", "online", "modos", "festa", "arena", "podio"];
+  const MARATONA = 60;
+  const CATEGORIAS = {
+    comida: "🍲 COMIDA", natureza: "🌿 NATUREZA", geografia: "🗺 GEOGRAFIA", cultura: "🎬 CULTURA POP",
+    esporte: "⚽ ESPORTE", ciencia: "🔬 CIÊNCIA", cotidiano: "🏠 DIA A DIA",
+  };
+  const TITULOS = { diario: "", infinito: "MODO INFINITO", desafio: "DESAFIO", semvolta: "SEM VOLTA", maratona: "MARATONA" };
+  const titulo = () => estado.modo === "diario" ? `MERGULHO #${estado.n}` : estado.modo === "pacote" ? "PACOTE " + CATEGORIAS[estado.cat].slice(3) : TITULOS[estado.modo];
+  const DE_SETE = ["diario", "infinito", "pacote", "desafio"];
+  function mostrar(id) { telas.forEach((t) => $(t).classList.toggle("on", t === id)); }
+  function toast(msg) { const t = $("toast"); t.textContent = msg; t.classList.add("on"); clearTimeout(toast.t); toast.t = setTimeout(() => t.classList.remove("on"), 2200); }
+
+  let estado = null, relogio = null;
+
+  function hud() {
+    $("hProf").textContent = fmt(estado.prof) + " m";
+    $("hPts").textContent = fmt(estado.pts);
+    // sem volta: só as últimas casas; maratona: sem trilha
+    const ate = estado.modo === "maratona" ? 0 : estado.modo === "semvolta" ? Math.min(estado.total, estado.res.length + 1) : estado.total;
+    let casas = "";
+    for (let i = Math.max(0, ate - 10); i < ate; i++) {
+      const r = estado.res[i];
+      casas += `<i class="${i === estado.i && !r ? "agora" : ""}">${r ? r.emoji : ""}</i>`;
+    }
+    $("trilha").innerHTML = casas;
+  }
+
+  function comecar(modo, opc = {}) {
+    const n = numeroDoDia(), todas = PERGUNTAS.map((_, x) => x);
+    const lista = modo === "diario" ? perguntasDoDia(n)
+      : modo === "desafio" ? opc.lista
+      : modo === "pacote" ? embaralhar(todas.filter((x) => PERGUNTAS[x].c === opc.cat), Math.random).slice(0, QTD)
+      : modo === "semvolta" ? embaralhar(todas, Math.random)
+      : embaralhar(todas, Math.random).slice(0, modo === "maratona" ? 1 : QTD);
+    estado = { ...opc, modo, n, lista, total: lista.length, i: 0, pts: 0, prof: 0, res: [] };
+    document.body.classList.add("jogando");
+    camera(0);
+    hud();
+    setTimeout(pergunta, 400);
+  }
+
+  function pergunta() {
+    const p = PERGUNTAS[estado.lista[estado.i]];
+    $("pNum").textContent = estado.modo === "online" ? `SALA ${sala.cod} · PERGUNTA ${estado.i + 1} DE ${estado.total}`
+      : estado.modo === "maratona" ? `MARATONA · ${MARATONA} SEGUNDOS`
+      : estado.modo === "semvolta" ? `SEM VOLTA · PERGUNTA ${estado.i + 1}`
+      : `${estado.modo === "pacote" ? CATEGORIAS[estado.cat] + " · " : ""}PERGUNTA ${estado.i + 1} DE ${estado.total}`;
+    $("pTexto").textContent = p.q;
+    $("pDica").textContent = estado.modo === "maratona" ? "▼ quantas respostas diferentes você conseguir ▼"
+      : estado.modo === "semvolta" ? "▼ plâncton ou tempo esgotado encerra o mergulho ▼" : "▼ resposta rara afunda mais ▼";
+    $("mLista").innerHTML = "";
+    $("contagem").style.display = "";
+    mostrar("pergunta");
+    hud();
+    let c = 3;
+    const tick = () => {
+      $("contagem").textContent = `descendo · o relógio começa em ${c}`;
+      if (c-- === 0) { $("contagem").style.display = "none"; abrirResposta(); return; }
+      setTimeout(tick, 900);
+    };
+    tick();
+  }
+
+  function abrirResposta() {
+    const inp = $("resp");
+    inp.value = ""; $("aviso").textContent = "";
+    $("entrada").classList.add("on");
+    setTimeout(() => inp.focus(), 50);
+    const ini = performance.now();
+    const arco = $("arco");
+    clearInterval(relogio);
+    // setInterval + relógio real: o tempo continua correndo mesmo se a aba sair de foco
+    const seg = estado.modo === "maratona" ? MARATONA : SEGUNDOS;
+    const passo = () => {
+      const resta = Math.max(0, seg - (performance.now() - ini) / 1000);
+      $("seg").textContent = Math.ceil(resta);
+      arco.style.strokeDashoffset = 144.5 * (1 - resta / seg);
+      arco.style.stroke = resta < 6 ? "#ff6b8b" : "#6ff7e8";
+      if (resta <= 0) estado.modo === "maratona" ? fimMaratona() : responder(null);
+    };
+    passo();
+    relogio = setInterval(passo, 100);
+  }
+
+  $("form").addEventListener("submit", (e) => {
+    e.preventDefault();
+    if (!estado || !$("entrada").classList.contains("on")) return;
+    const txt = $("resp").value.trim();
+    if (!txt) return;
+    const p = PERGUNTAS[estado.lista[estado.i]];
+    const ach = achar(p, txt);
+    if (!ach) {
+      $("aviso").textContent = `"${txt}": sem eco aqui embaixo. tenta outra`;
+      const f = $("form"); f.classList.remove("treme"); f.offsetWidth; f.classList.add("treme");
+      $("resp").select();
+      return;
+    }
+    if (estado.modo === "maratona") return maratonaAcerto(p, ach);
+    responder(ach);
+  });
+
+  // ---------- maratona: uma pergunta, várias respostas ----------
+  function maratonaAcerto(p, ach) {
+    if (estado.res.some((r) => r.nome === ach.nome)) {
+      $("aviso").textContent = `"${ach.nome}" já foi. manda outra!`;
+      $("resp").select();
+      return;
+    }
+    const f = FAIXAS[ach.tier];
+    estado.res.push({ q: p.q, nome: ach.nome, tier: ach.tier, emoji: f.emoji });
+    estado.pts += f.pts;
+    estado.prof = Math.min(FUNDO, estado.pts * 10);
+    camera(estado.prof);
+    bolhas(4);
+    hud();
+    $("mLista").insertAdjacentHTML("afterbegin", `<span style="color:${f.cor}">${f.emoji} ${esc(ach.nome)} +${f.pts}</span>`);
+    $("aviso").textContent = `${estado.res.length} resposta${estado.res.length > 1 ? "s" : ""} · +${f.pts}`;
+    $("resp").value = "";
+    if (ach.tier >= 3) falar();
+  }
+  function fimMaratona() {
+    clearInterval(relogio);
+    $("entrada").classList.remove("on");
+    $("resp").blur();
+    $("contagem").style.display = "";
+    $("contagem").textContent = "tempo! subindo os resultados...";
+    setTimeout(fim, 1400);
+  }
+
+  function responder(ach) {
+    clearInterval(relogio);
+    $("entrada").classList.remove("on");
+    $("resp").blur();
+    const faixa = ach ? FAIXAS[ach.tier] : ESGOTOU;
+    const p = PERGUNTAS[estado.lista[estado.i]];
+    estado.res.push({ q: p.q, nome: ach ? ach.nome : "(sem resposta)", tier: ach ? ach.tier : -1, emoji: faixa.emoji });
+    if (estado.modo === "semvolta" && (!ach || ach.tier === 0)) estado.acabou = true;
+    if (estado.modo === "online") mandar({ t: "a", id: eu, quem: sala.nome, i: estado.i, resp: ach ? ach.nome : "", tier: ach ? ach.tier : -1 });
+    estado.pts += faixa.pts;
+    estado.prof = Math.min(FUNDO, estado.pts * 10);
+    mostrar(null);
+    camera(estado.prof);
+    bolhas(10);
+    if (estado.modo === "diario") guardar("abissal:" + estado.n, { res: estado.res, pts: estado.pts, feito: estado.res.length === QTD });
+    setTimeout(() => {
+      hud();
+      $("rFaixa").textContent = faixa.nome;
+      $("rFaixa").style.color = faixa.cor;
+      $("rResp").textContent = ach ? `"${ach.nome}"` : "";
+      $("rGanho").textContent = `+${faixa.pts} pts · afundou ${fmt(faixa.pts * 10)} m`;
+      $("rFrase").textContent = estado.acabou ? faixa.frase + " No sem volta, isso encerra o mergulho." : faixa.frase;
+      $("rEscada").innerHTML = FAIXAS.map((f, i) => `<div class="${ach && ach.tier === i ? "sim" : ""}" style="${ach && ach.tier === i ? "color:" + f.cor : ""}"><span>${f.emoji} ${f.nome}</span><span>${f.pts}</span></div>`).join("");
+      $("bDescer").textContent = !estado.acabou && estado.i + 1 < estado.total ? "DESCER ▼" : "VER RESULTADO";
+      $("bDescer").disabled = false;
+      $("rSala").innerHTML = "";
+      if (estado.modo === "online") renderSalaRevela();
+      mostrar("revela");
+      if (ach && ach.tier >= 3) falar();
+    }, 1500);
+  }
+
+  $("bDescer").addEventListener("click", () => {
+    if (estado.modo === "online") {
+      if (!souHost()) return;
+      mandar(estado.i + 1 < estado.total ? { t: "q", i: estado.i + 1 } : { t: "fim" });
+      return;
+    }
+    estado.i++;
+    if (!estado.acabou && estado.i < estado.total) pergunta(); else fim();
+  });
+
+  function zonaDe(m) { return ZONAS.find(([lim]) => m < lim)[1]; }
+
+  function fim() {
+    hud();
+    const m = estado.modo, maratona = m === "maratona";
+    clearInterval(contagemAmanha.t);
+    $("fTitulo").textContent = titulo() + " · FIM";
+    $("fProf").textContent = fmt(estado.prof) + " m";
+    $("fZona").textContent = (estado.prof >= FUNDO ? "você tocou o fundo da fossa!" : "você chegou na " + zonaDe(estado.prof))
+      + (maratona ? ` · ${estado.res.length} resposta${estado.res.length === 1 ? "" : "s"}` : "")
+      + (m === "semvolta" ? ((v) => ` · ${v} pergunta${v === 1 ? " vencida" : "s vencidas"}`)(estado.res.filter((r) => r.tier > 0).length) : "");
+    $("fEmojis").textContent = estado.res.map((r) => r.emoji).join("") || "💨";
+    $("fLista").innerHTML = (maratona ? `<div><span><small>a pergunta</small>${esc(PERGUNTAS[estado.lista[0]].q)}</span><b>${fmt(estado.pts)}</b></div>` : "")
+      + estado.res.map((r) => {
+        const f = r.tier >= 0 ? FAIXAS[r.tier] : ESGOTOU;
+        return `<div><span>${maratona ? "" : `<small>${r.q}</small>`}${r.nome}</span><b style="color:${f.cor}">${f.emoji} ${f.pts}</b></div>`;
+      }).join("");
+    $("bDeNovo").textContent = m === "diario" || m === "desafio" ? "MODO INFINITO ∞" : m === "infinito" ? "OUTRO MERGULHO ∞" : "JOGAR DE NOVO ↻";
+    $("bDesafiar").style.display = DE_SETE.includes(m) ? "" : "none";
+    mostrar("fim");
+    $("proximo").textContent = "";
+    if (m === "diario") contagemAmanha();
+    else if (m === "semvolta" || maratona) {
+      const k = "abissal:recorde:" + m, rec = ler(k) || 0;
+      if (estado.pts > rec) { guardar(k, estado.pts); $("proximo").textContent = `🏅 novo recorde: ${fmt(estado.pts)} pts!`; }
+      else $("proximo").textContent = `seu recorde: ${fmt(rec)} pts`;
+    } else if (m === "desafio") {
+      const dif = estado.prof - estado.alvo;
+      $("proximo").textContent = dif > 0 ? `⚔ você venceu o desafio por ${fmt(dif)} m!` : dif < 0 ? `⚔ faltaram ${fmt(-dif)} m para bater o desafio (${fmt(estado.alvo)} m)` : "⚔ empate exato. respeito.";
+    }
+  }
+
+  function contagemAmanha() {
+    clearInterval(contagemAmanha.t);
+    const atualiza = () => {
+      const am = new Date(); am.setHours(24, 0, 0, 0);
+      const s = Math.max(0, Math.floor((am - new Date()) / 1000));
+      const hh = String(Math.floor(s / 3600)).padStart(2, "0"), mm = String(Math.floor(s / 60) % 60).padStart(2, "0"), ss = String(s % 60).padStart(2, "0");
+      $("proximo").textContent = `próximo mergulho em ${hh}:${mm}:${ss}`;
+    };
+    atualiza(); contagemAmanha.t = setInterval(atualiza, 1000);
+  }
+
+  $("bCompartilhar").addEventListener("click", async () => {
+    const cab = estado.modo === "diario" ? `ABISSAL #${estado.n}` : estado.modo === "infinito" ? "ABISSAL ∞" : "ABISSAL · " + titulo();
+    const extra = estado.modo === "maratona" ? ` · ${estado.res.length} respostas em ${MARATONA} s` : "";
+    enviar(`${cab} · ${fmt(estado.prof)} m${extra}\n${estado.res.map((r) => r.emoji).join("")}\n${estado.prof >= FUNDO ? "fundo da fossa!" : zonaDe(estado.prof)}\n${location.origin}`);
+  });
+  async function enviar(txt) {
+    try {
+      if (navigator.share && matchMedia("(pointer: coarse)").matches) { await navigator.share({ text: txt }); return; }
+      await navigator.clipboard.writeText(txt);
+      toast("Copiado! Cola no WhatsApp.");
+    } catch (e) { toast("Não deu para copiar."); }
+  }
+
+  // ---------- desafio: as mesmas 7 perguntas num link ----------
+  $("bDesafiar").addEventListener("click", () => {
+    const d = estado.lista.map((x) => x.toString(36)).join(".");
+    const link = `${location.origin}${location.pathname}?d=${d}&m=${estado.prof}`;
+    enviar(`⚔ Desafio do Abissal: afundei ${fmt(estado.prof)} m com estas 7 perguntas. Consegue descer mais?\n${link}`);
+  });
+  let convite = null;
+  (function lerConvite() {
+    const qs = new URLSearchParams(location.search);
+    if (!qs.get("d")) return;
+    const lista = qs.get("d").split(".").map((s) => parseInt(s, 36));
+    const alvo = Math.max(0, Math.min(FUNDO, parseInt(qs.get("m"), 10) || 0));
+    history.replaceState(null, "", location.pathname);
+    if (lista.length !== QTD || lista.some((x) => !(x >= 0 && x < PERGUNTAS.length))) return;
+    convite = { lista, alvo };
+    $("cTexto").textContent = `Um amigo afundou ${fmt(alvo)} m com 7 perguntas. Mesmas perguntas, 25 segundos cada. Você desce mais?`;
+  })();
+  $("bAceitar").addEventListener("click", () => { const c = convite; convite = null; comecar("desafio", c); });
+
+  // ---------- tela de outros modos ----------
+  function abrirModos() {
+    $("cats").innerHTML = Object.entries(CATEGORIAS).map(([c, nome]) =>
+      `<button class="btn fino" data-cat="${c}">${nome}<small>${PERGUNTAS.filter((p) => p.c === c).length} perguntas</small></button>`).join("");
+    const rm = ler("abissal:recorde:maratona"), rs = ler("abissal:recorde:semvolta");
+    $("recordes").textContent = rm || rs ? `recordes · maratona: ${fmt(rm || 0)} pts · sem volta: ${fmt(rs || 0)} pts` : "";
+    mostrar("modos");
+  }
+  $("bModos").addEventListener("click", abrirModos);
+  $("bVoltarModos").addEventListener("click", () => mostrar("inicio"));
+  $("cats").addEventListener("click", (e) => { const b = e.target.closest("[data-cat]"); if (b) comecar("pacote", { cat: b.dataset.cat }); });
+  $("bMaratona").addEventListener("click", () => comecar("maratona"));
+  $("bSemVolta").addEventListener("click", () => comecar("semvolta"));
+
+  function superficie() {
+    clearInterval(relogio);
+    clearInterval(contagemAmanha.t);
+    estado = null;
+    document.body.classList.remove("jogando");
+    mostrar("inicio");
+    camera(0);
+    atualizarInicio();
+  }
+  $("bSuperficie").addEventListener("click", superficie);
+  $("bDeNovo").addEventListener("click", () => {
+    const m = estado.modo === "diario" || estado.modo === "desafio" ? "infinito" : estado.modo;
+    const opc = m === "pacote" ? { cat: estado.cat } : {};
+    mostrar(null); camera(0); setTimeout(() => comecar(m, opc), 900);
+  });
+  $("bInfinito").addEventListener("click", () => comecar("infinito"));
+  $("bComo").addEventListener("click", () => $("comoJogar").classList.toggle("on"));
+
+  $("bDiario").addEventListener("click", () => {
+    const n = numeroDoDia(), salvo = ler("abissal:" + n);
+    if (salvo && salvo.res && salvo.res.length) {
+      // já mergulhou (ou abandonou no meio): mostra o resultado, sem segunda chance
+      estado = { modo: "diario", n, lista: perguntasDoDia(n), total: QTD, i: QTD, pts: salvo.pts, prof: Math.min(FUNDO, salvo.pts * 10), res: salvo.res };
+      while (estado.res.length < QTD) estado.res.push({ q: PERGUNTAS[estado.lista[estado.res.length]].q, nome: "(abandonou)", tier: -1, emoji: "💨" });
+      document.body.classList.add("jogando");
+      camera(estado.prof);
+      setTimeout(fim, 900);
+      return;
+    }
+    comecar("diario");
+  });
+
+  function atualizarInicio() {
+    const n = numeroDoDia(), salvo = ler("abissal:" + n);
+    $("nDia").textContent = `MERGULHO #${n}`;
+    $("bDiario").textContent = salvo && salvo.res && salvo.res.length ? "VER MEU MERGULHO DE HOJE" : "▼ COMEÇAR A DESCIDA ▼";
+    $("convite").classList.toggle("on", !!convite);
+  }
+
+  // ---------- festa do baiacu (multiplayer local + robôs) ----------
+  const VIDAS = 3, MAX_VIDAS = 5, META = 150;           // META: pontos de raridade para ganhar um ❤
+  const NOMES_ROBO = ["Robô Siri", "Robô Lula", "Robô Ostra", "Robô Moreia", "Robô Polvo", "Robô Tainha", "Robô Garoupa"];
+  let mesa = ler("abissal:mesa") || [{ nome: "", robo: false }, { nome: "", robo: false }, { nome: NOMES_ROBO[0], robo: true }];
+  let festa = null;
+  const esc = (s) => s.replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" })[c]);
+
+  (function desenharBaiacu() {
+    let espinhos = "";
+    for (let i = 0; i < 18; i++) {
+      const a = (i / 18) * Math.PI * 2, c = Math.cos(a), s = Math.sin(a);
+      const p = (r, d) => `${(Math.cos(a + d) * r).toFixed(1)},${(Math.sin(a + d) * r).toFixed(1)}`;
+      espinhos += `<path d="M${p(34, -.12)} L${(c * 50).toFixed(1)},${(s * 50).toFixed(1)} L${p(34, .12)}Z" fill="#e0a52c"/>`;
+    }
+    $("baiacu").innerHTML = espinhos +
+      `<path d="M30 0 L52 -16 L48 0 L52 16Z" fill="#ff9f43"/>
+       <circle r="36" fill="#ffc94d"/><ellipse cy="12" rx="26" ry="18" fill="#ffe7a8"/>
+       <circle cx="-14" cy="-10" r="4" fill="#c47f14"/><circle cx="6" cy="-20" r="3" fill="#c47f14"/><circle cx="16" cy="-4" r="3.5" fill="#c47f14"/>
+       <circle cx="-22" cy="-6" r="9" fill="#fff"/><circle cx="-24" cy="-5" r="5" fill="#04121f"/><circle cx="-26" cy="-7" r="1.6" fill="#fff"/>
+       <ellipse cx="-30" cy="12" rx="5" ry="6" fill="#c2410c"/>
+       <path d="M-4 18 Q6 30 -10 30" stroke="#ff9f43" stroke-width="4" fill="none" stroke-linecap="round"/>`;
+  })();
+
+  function renderMesa() {
+    $("listaJog").innerHTML = mesa.map((j, i) => `<div class="jog">
+      <span class="tipo">${j.robo ? "🤖" : "🙂"}</span>
+      <input data-i="${i}" value="${esc(j.nome)}" placeholder="Jogador ${i + 1}" maxlength="16" ${j.robo ? "readonly" : ""}>
+      <button data-tira="${i}" aria-label="Remover">✕</button></div>`).join("");
+    $("bMaisJog").disabled = $("bMaisRobo").disabled = mesa.length >= 8;
+  }
+  $("listaJog").addEventListener("input", (e) => { if (e.target.dataset.i) mesa[+e.target.dataset.i].nome = e.target.value; });
+  $("listaJog").addEventListener("click", (e) => {
+    const i = e.target.dataset.tira;
+    if (i === undefined) return;
+    if (mesa.length <= 2) return toast("Precisa de pelo menos 2 na mesa.");
+    mesa.splice(+i, 1); renderMesa();
+  });
+  $("bMaisJog").addEventListener("click", () => { mesa.push({ nome: "", robo: false }); renderMesa(); });
+  $("bMaisRobo").addEventListener("click", () => {
+    const livre = NOMES_ROBO.find((n) => !mesa.some((j) => j.nome === n)) || "Robô " + (mesa.length + 1);
+    mesa.push({ nome: livre, robo: true }); renderMesa();
+  });
+
+  function abrirFesta() {
+    pararFesta();
+    estado = null;
+    document.body.classList.remove("jogando");
+    document.body.classList.add("festa");
+    camera(260);
+    renderMesa();
+    mostrar("festa");
+  }
+  $("bFesta").addEventListener("click", abrirFesta);
+  $("bTrocarJog").addEventListener("click", abrirFesta);
+  $("bVoltarFesta").addEventListener("click", sairFesta);
+  $("bSairFesta").addEventListener("click", () => { if (confirm("Sair da festa? A partida acaba.")) sairFesta(); });
+  $("bSuperficie2").addEventListener("click", sairFesta);
+  $("bRevanche").addEventListener("click", () => comecarFesta());
+
+  function sairFesta() {
+    pararFesta();
+    document.body.classList.remove("festa");
+    superficie();
+  }
+  function pararFesta() {
+    if (!festa) return;
+    clearInterval(festa.tick); clearTimeout(festa.robo); clearTimeout(festa.prox);
+    $("fEntrada").classList.remove("on");
+    festa = null;
+  }
+
+  $("bComecarFesta").addEventListener("click", () => comecarFesta());
+  function comecarFesta() {
+    if (!mesa.some((j) => !j.robo)) return toast("Coloque pelo menos uma pessoa na mesa.");
+    mesa.forEach((j, i) => { if (!j.nome.trim()) j.nome = "Jogador " + (i + 1); j.nome = j.nome.trim(); });
+    guardar("abissal:mesa", mesa);
+    pararFesta();
+    document.body.classList.remove("jogando");
+    document.body.classList.add("festa");
+    festa = {
+      js: mesa.map((j) => ({ nome: j.nome, robo: j.robo, vidas: VIDAS, barra: 0, fora: false })),
+      vez: Math.floor(Math.random() * mesa.length),
+      banco: embaralhar(PERGUNTAS.map((_, x) => x), Math.random),
+      rodada: 0, ordemSaida: [],
+    };
+    mostrar("arena");
+    novaRodada();
+  }
+
+  function vivos() { return festa.js.filter((j) => !j.fora); }
+  function proximoVivo(i) { const n = festa.js.length; for (let k = 1; k <= n; k++) { const x = (i + k) % n; if (!festa.js[x].fora) return x; } return i; }
+
+  function novaRodada() {
+    const f = festa;
+    f.rodada++;
+    f.p = PERGUNTAS[f.banco[(f.rodada - 1) % f.banco.length]];
+    f.usadas = [];
+    f.ini = performance.now();
+    f.dur = (9 + Math.random() * 21) * 1000;           // pavio secreto: entre 9 e 30 segundos
+    f.estourou = false;
+    $("aRodada").textContent = `RODADA ${f.rodada}`;
+    $("aPerg").textContent = f.p.q;
+    $("fLog").textContent = "o baiacu começou a encher...";
+    $("usadas").innerHTML = "";
+    const b = $("baiacu"); b.classList.remove("pum", "nervoso"); b.style.opacity = 1; b.style.setProperty("--s", 1);
+    clearInterval(f.tick);
+    f.tick = setInterval(pavio, 100);
+    iniciarVez();
+  }
+
+  function pavio() {
+    const f = festa;
+    if (!f || f.estourou) return;
+    const prog = Math.min(1, (performance.now() - f.ini) / f.dur);
+    const b = $("baiacu");
+    b.style.setProperty("--s", (1 + prog * 0.8).toFixed(3));
+    b.classList.toggle("nervoso", prog > 0.7);
+    if (prog >= 1) estourar();
+  }
+
+  function renderRoda() {
+    const f = festa;
+    $("roda").innerHTML = f.js.map((j, i) => `<div class="cj${i === f.vez && !j.fora ? " vez" : ""}${j.fora ? " fora" : ""}">
+      <b>${j.robo ? "🤖 " : ""}${esc(j.nome)}</b>
+      <div class="vidas">${"❤️".repeat(j.vidas)}${j.fora ? "💀" : ""}</div>
+      <div class="barra"><i style="width:${Math.round(j.barra / META * 100)}%"></i></div></div>`).join("");
+  }
+
+  function iniciarVez() {
+    const f = festa, j = f.js[f.vez];
+    renderRoda();
+    $("segura").textContent = `🐡 com ${j.nome}`;
+    clearTimeout(f.robo);
+    if (j.robo) {
+      $("fEntrada").classList.remove("on");
+      f.robo = setTimeout(roboJoga, 1200 + Math.random() * 3300);
+    } else {
+      $("fVez").textContent = vivos().filter((x) => !x.robo).length > 1 ? `VEZ DE ${j.nome.toUpperCase()} · passa o celular!` : `SUA VEZ, ${j.nome.toUpperCase()}`;
+      $("fAviso").textContent = "";
+      $("fResp").value = "";
+      $("fEntrada").classList.add("on");
+      setTimeout(() => $("fResp").focus(), 60);
+    }
+  }
+
+  function roboJoga() {
+    const f = festa;
+    if (!f || f.estourou) return;
+    if (Math.random() < 0.12) { f.robo = setTimeout(roboJoga, 1500 + Math.random() * 2500); return; } // travou um pouco
+    const livres = [];
+    indexar(f.p).forEach((v) => { if (!f.usadas.some((u) => u.nome === v.nome) && !livres.some((l) => l.nome === v.nome)) livres.push(v); });
+    if (!livres.length) { f.robo = setTimeout(roboJoga, 2000); return; }
+    const peso = [40, 14, 26, 12, 6, 2];
+    const tiers = [...new Set(livres.map((l) => l.tier))];
+    let r = Math.random() * tiers.reduce((s, t) => s + peso[t], 0), tier = tiers[0];
+    for (const t of tiers) { r -= peso[t]; if (r <= 0) { tier = t; break; } }
+    const op = livres.filter((l) => l.tier === tier);
+    aceitar(op[Math.floor(Math.random() * op.length)]);
+  }
+
+  $("fForm").addEventListener("submit", (e) => {
+    e.preventDefault();
+    const f = festa;
+    if (!f || f.estourou || f.js[f.vez].robo) return;
+    const txt = $("fResp").value.trim();
+    if (!txt) return;
+    const ach = achar(f.p, txt);
+    let erro = "";
+    if (!ach) erro = `"${txt}": sem eco aqui embaixo. tenta outra`;
+    else if (f.usadas.some((u) => u.nome === ach.nome)) erro = `"${ach.nome}" já foi! não vale repetir`;
+    if (erro) {
+      $("fAviso").textContent = erro;
+      const fm = $("fForm"); fm.classList.remove("treme"); fm.offsetWidth; fm.classList.add("treme");
+      $("fResp").select();
+      return;
+    }
+    aceitar(ach);
+  });
+
+  function aceitar(ach) {
+    const f = festa, j = f.js[f.vez], faixa = FAIXAS[ach.tier];
+    f.usadas.push(ach);
+    $("usadas").insertAdjacentHTML("beforeend", `<span style="color:${faixa.cor}">${faixa.emoji} ${ach.nome}</span>`);
+    let msg = `${j.nome}: "${ach.nome}" · ${faixa.nome.toLowerCase()}`;
+    j.barra += faixa.pts;
+    if (j.barra >= META) {
+      j.barra -= META;
+      if (j.vidas < MAX_VIDAS) { j.vidas++; msg += " · +1 ❤️!"; }
+    }
+    $("fLog").textContent = msg;
+    f.vez = proximoVivo(f.vez);
+    iniciarVez();
+  }
+
+  function estourar() {
+    const f = festa, j = f.js[f.vez];
+    f.estourou = true;
+    clearInterval(f.tick); clearTimeout(f.robo);
+    $("fEntrada").classList.remove("on");
+    const b = $("baiacu"); b.classList.remove("nervoso"); b.classList.add("pum");
+    for (let i = 0; i < 16; i++) {
+      const s = document.createElement("i"), a = Math.random() * Math.PI * 2, d = 60 + Math.random() * 90;
+      s.className = "estilhaco";
+      s.style.setProperty("--x", Math.cos(a) * d + "px"); s.style.setProperty("--y", Math.sin(a) * d + "px");
+      $("palco").appendChild(s); setTimeout(() => s.remove(), 900);
+    }
+    j.vidas--;
+    if (j.vidas <= 0) { j.fora = true; f.ordemSaida.push(j); }
+    $("fLog").textContent = j.fora ? `💥 estourou na mão de ${j.nome}! fim da linha` : `💥 estourou na mão de ${j.nome}! perdeu um ❤️`;
+    $("segura").textContent = "POW!";
+    renderRoda();
+    const restam = vivos();
+    if (restam.length <= 1) { f.prox = setTimeout(podio, 2000); return; }
+    if (j.fora) f.vez = proximoVivo(f.vez);
+    f.prox = setTimeout(novaRodada, 2600);
+  }
+
+  function podio() {
+    const f = festa, campeao = vivos()[0];
+    const rank = [campeao, ...f.ordemSaida.slice().reverse()];
+    $("pVencedor").textContent = `🏆 ${campeao.nome}`;
+    $("pSub").textContent = `ficou boiando sozinho depois de ${f.rodada} rodada${f.rodada > 1 ? "s" : ""}`;
+    $("pRank").innerHTML = rank.map((j, i) => `<div><span>${i + 1}º ${j.robo ? "🤖 " : ""}${esc(j.nome)}</span><span>${i === 0 ? "❤️".repeat(j.vidas) : "💀"}</span></div>`).join("");
+    clearInterval(f.tick);
+    mostrar("podio");
+  }
+
+  // ---------- sala online (Supabase Realtime: só broadcast e presença, nada é gravado) ----------
+  const SB_URL = "https://rhoqojbcuzsnyxbkehpm.supabase.co";
+  const SB_CHAVE = "sb_publishable_KsnpXF9JgyWhTGMjoE5kTQ_gwijjKYA";
+  let sb = null, sala = null;
+  const eu = (() => {
+    const novo = () => Math.random().toString(36).slice(2, 10);
+    try { let i = sessionStorage.getItem("abissal:eu"); if (!i) { i = novo(); sessionStorage.setItem("abissal:eu", i); } return i; } catch (e) { return novo(); }
+  })();
+  const souHost = () => !!(sala && sala.jogadores.length && sala.jogadores[0].id === eu);
+  function mandar(p) { if (sala && sala.ch) sala.ch.send({ type: "broadcast", event: "m", payload: p }); }
+  function novoCodigo() { const L = "ABCDEFGHJKLMNPQRSTUVWXYZ"; let c = ""; for (let i = 0; i < 4; i++) c += L[Math.floor(Math.random() * L.length)]; return c; }
+  function rankingSala() {
+    return Object.entries(sala.placar).map(([id, j]) => ({ id, ...j })).sort((a, b) => b.pts - a.pts);
+  }
+
+  function abrirOnline(cod) {
+    sairSala();
+    estado = null;
+    document.body.classList.remove("jogando");
+    camera(0);
+    $("nomeOnline").value = ler("abissal:nome") || "";
+    $("oCodigo").value = cod || "";
+    $("oEntrar").style.display = ""; $("oLobby").style.display = "none";
+    $("oTema").innerHTML = `<option value="">🎲 Tudo misturado</option>` + Object.entries(CATEGORIAS).map(([c, n]) => `<option value="${c}">${n}</option>`).join("");
+    mostrar("online");
+  }
+
+  function entrarSala(cod) {
+    const nome = $("nomeOnline").value.trim();
+    if (!nome) { toast("Escreve seu nome primeiro."); $("nomeOnline").focus(); return; }
+    if (!/^[A-Z]{4}$/.test(cod)) { toast("O código tem 4 letras."); return; }
+    if (!window.supabase) { toast("Sem conexão com o servidor da sala."); return; }
+    guardar("abissal:nome", nome);
+    sb = sb || window.supabase.createClient(SB_URL, SB_CHAVE);
+    sairSala();
+    sala = { cod, nome, entrou: Date.now(), jogando: false, placar: {}, jogadores: [], final: null };
+    const ch = sb.channel("abissal-sala-" + cod, { config: { broadcast: { self: true }, presence: { key: eu } } });
+    sala.ch = ch;
+    ch.on("presence", { event: "sync" }, () => {
+      const st = ch.presenceState();
+      sala.jogadores = Object.values(st).map((l) => l[0]).sort((a, b) => a.entrou - b.entrou || (a.id < b.id ? -1 : 1));
+      renderSala();
+      renderSalaRevela();
+    });
+    ch.on("broadcast", { event: "m" }, ({ payload }) => receber(payload));
+    ch.subscribe(async (status) => {
+      if (status === "SUBSCRIBED") {
+        await ch.track({ id: eu, nome, entrou: sala.entrou, jogando: false });
+        history.replaceState(null, "", "?sala=" + cod);
+      } else if (status === "CHANNEL_ERROR" || status === "TIMED_OUT") toast("Não consegui conectar na sala. Tenta de novo.");
+    });
+    $("oEntrar").style.display = "none"; $("oLobby").style.display = "";
+    $("oCod").textContent = cod;
+    renderSala();
+  }
+
+  function sairSala() {
+    if (!sala) return;
+    try { sb.removeChannel(sala.ch); } catch (e) {}
+    sala = null;
+    history.replaceState(null, "", location.pathname);
+  }
+
+  function receber(p) {
+    if (!sala) return;
+    if (p.t === "start") {
+      sala.jogando = true; sala.final = null; sala.placar = {}; sala.total = p.lista.length;
+      p.quem.forEach(([id, nome]) => { sala.placar[id] = { nome, pts: 0, res: [] }; });
+      if (!sala.placar[eu]) { renderSala(); return; }       // entrou depois do início: espera a próxima
+      estado = { modo: "online", n: 0, lista: p.lista, total: p.lista.length, i: 0, pts: 0, prof: 0, res: [] };
+      document.body.classList.add("jogando");
+      camera(0); hud();
+      setTimeout(pergunta, 400);
+    } else if (p.t === "q") {
+      if (!estado || estado.modo !== "online") return;
+      clearInterval(relogio);
+      $("entrada").classList.remove("on");
+      while (estado.res.length < p.i) estado.res.push({ q: PERGUNTAS[estado.lista[estado.res.length]].q, nome: "(sem resposta)", tier: -1, emoji: ESGOTOU.emoji });
+      estado.i = p.i;
+      pergunta();
+    } else if (p.t === "a") {
+      const j = sala.placar[p.id] || (sala.placar[p.id] = { nome: p.quem, pts: 0, res: [] });
+      j.res[p.i] = { resp: p.resp, tier: p.tier, pts: p.tier >= 0 ? FAIXAS[p.tier].pts : 0 };
+      j.pts = j.res.reduce((s, r) => s + (r ? r.pts : 0), 0);
+      renderSalaRevela();
+    } else if (p.t === "fim") {
+      sala.jogando = false;
+      sala.final = rankingSala();
+      clearInterval(relogio);
+      $("entrada").classList.remove("on");
+      estado = null;
+      document.body.classList.remove("jogando");
+      camera(0);
+      mostrar("online");
+      renderSala();
+      if (sala.final[0] && sala.final[0].id === eu) toast("🏆 Você desceu mais fundo que todo mundo!");
+    }
+  }
+
+  function renderSala() {
+    if (!sala) return;
+    const host = souHost();
+    $("oJogadores").innerHTML = sala.jogadores.map((j, i) =>
+      `<div><span>${i === 0 ? "👑 " : "🤿 "}${esc(j.nome)}${j.id === eu ? " (você)" : ""}</span><span style="color:var(--suave)">${i === 0 ? "anfitrião" : ""}</span></div>`).join("")
+      || `<div><span>conectando...</span></div>`;
+    $("oFinal").innerHTML = sala.final ? `<div class="rotulo" style="margin-top:16px">🏆 PÓDIO DA ÚLTIMA PARTIDA</div><div class="rank final">${sala.final.map((j, i) =>
+      `<div><span>${i + 1}º ${esc(j.nome)}</span><span>${fmt(Math.min(FUNDO, j.pts * 10))} m · ${Array.from({ length: sala.total }, (_, x) => j.res[x]).map((r) => r ? (r.tier >= 0 ? FAIXAS[r.tier] : ESGOTOU).emoji : "💨").join("")}</span></div>`).join("")}</div>` : "";
+    $("oHost").style.display = host && !sala.jogando ? "" : "none";
+    $("bComecarSala").textContent = sala.final ? "NOVA PARTIDA ▶" : "COMEÇAR A PARTIDA ▶";
+    const dono = sala.jogadores[0];
+    $("oEspera").textContent = sala.jogando ? "partida em andamento · você entra na próxima"
+      : host ? (sala.jogadores.length < 2 ? "chame pelo menos um amigo (ou comece sozinho mesmo)" : "")
+      : dono ? `esperando ${dono.nome} começar a partida...` : "";
+  }
+
+  function renderSalaRevela() {
+    if (!sala || !estado || estado.modo !== "online") return;
+    const i = estado.i, online = new Set(sala.jogadores.map((j) => j.id));
+    const rank = rankingSala();
+    $("rSala").innerHTML = `<div style="background:none;padding:0"><small>PLACAR DA SALA</small></div>` + rank.map((j) => {
+      const r = j.res[i], f = r ? (r.tier >= 0 ? FAIXAS[r.tier] : ESGOTOU) : null;
+      const status = r ? esc(r.resp || "(tempo esgotado)") : online.has(j.id) ? "⏳ pensando..." : "📴 saiu";
+      return `<div><span><small>${esc(j.nome)}${j.id === eu ? " (você)" : ""} · ${fmt(Math.min(FUNDO, j.pts * 10))} m</small>${status}</span><b style="color:${f ? f.cor : "var(--suave)"}">${f ? f.emoji + " " + f.pts : ""}</b></div>`;
+    }).join("");
+    const ultimo = i + 1 >= estado.total;
+    const host = souHost();
+    $("bDescer").disabled = !host;
+    $("bDescer").textContent = host ? (ultimo ? "VER O PÓDIO 🏆" : "PRÓXIMA PERGUNTA ▼") : "o anfitrião puxa a próxima...";
+  }
+
+  $("bOnline").addEventListener("click", () => abrirOnline());
+  $("bCriarSala").addEventListener("click", () => entrarSala(novoCodigo()));
+  $("bEntrarSala").addEventListener("click", () => entrarSala($("oCodigo").value.trim().toUpperCase()));
+  $("oCodigo").addEventListener("keydown", (e) => { if (e.key === "Enter") $("bEntrarSala").click(); });
+  $("bSairSala").addEventListener("click", () => { sairSala(); superficie(); });
+  $("bConvidar").addEventListener("click", () => {
+    enviar(`🌊 Bora jogar Abissal comigo? Entra na sala ${sala.cod}:\n${location.origin}${location.pathname}?sala=${sala.cod}`);
+  });
+  $("bComecarSala").addEventListener("click", () => {
+    if (!souHost()) return;
+    const tema = $("oTema").value, todas = PERGUNTAS.map((_, x) => x);
+    const lista = embaralhar(tema ? todas.filter((x) => PERGUNTAS[x].c === tema) : todas, Math.random).slice(0, QTD);
+    mandar({ t: "start", lista, quem: sala.jogadores.map((j) => [j.id, j.nome]) });
+  });
+
+  const codSala = new URLSearchParams(location.search).get("sala");
+  atualizarInicio();
+  camera(0, true);
+  if (codSala && /^[A-Za-z]{4}$/.test(codSala)) abrirOnline(codSala.toUpperCase());
+})();
+</script>
+</body>
+</html>
