@@ -375,6 +375,10 @@ body.festa #peixe, body.festa #hud { display: none; }
       <div class="rotulo" style="margin-top:16px">NA SALA</div>
       <div class="rank" id="oJogadores"></div>
       <div id="oHost">
+        <select id="oModo">
+          <option value="mergulho">🌊 Mergulho · 7 perguntas, todos ao mesmo tempo</option>
+          <option value="festa">🐡 Festa do Baiacu · passa o baiacu antes que estoure</option>
+        </select>
         <select id="oTema"></select>
         <button class="btn quente" id="bComecarSala" style="width:100%">COMEÇAR A PARTIDA ▶</button>
       </div>
@@ -1010,11 +1014,22 @@ body.festa #peixe, body.festa #hud { display: none; }
     mostrar("festa");
   }
   $("bFesta").addEventListener("click", abrirFesta);
-  $("bTrocarJog").addEventListener("click", abrirFesta);
+  $("bTrocarJog").addEventListener("click", () => {
+    if (!festa || !festa.online) return abrirFesta();
+    pararFesta();
+    document.body.classList.remove("festa");
+    mostrar("online");
+    renderSala();
+  });
   $("bVoltarFesta").addEventListener("click", sairFesta);
-  $("bSairFesta").addEventListener("click", () => { if (confirm("Sair da festa? A partida acaba.")) sairFesta(); });
-  $("bSuperficie2").addEventListener("click", sairFesta);
-  $("bRevanche").addEventListener("click", () => comecarFesta());
+  $("bSairFesta").addEventListener("click", () => {
+    const online = festa && festa.online;
+    if (!confirm(online ? "Sair da festa? Você sai da sala." : "Sair da festa? A partida acaba.")) return;
+    if (online) sairSala();
+    sairFesta();
+  });
+  $("bSuperficie2").addEventListener("click", () => { if (festa && festa.online) sairSala(); sairFesta(); });
+  $("bRevanche").addEventListener("click", () => festa && festa.online ? iniciarPartidaSala("festa") : comecarFesta());
 
   function sairFesta() {
     pararFesta();
@@ -1049,14 +1064,16 @@ body.festa #peixe, body.festa #hud { display: none; }
   function vivos() { return festa.js.filter((j) => !j.fora); }
   function proximoVivo(i) { const n = festa.js.length; for (let k = 1; k <= n; k++) { const x = (i + k) % n; if (!festa.js[x].fora) return x; } return i; }
 
-  function novaRodada() {
+  const pavioSecreto = () => (9 + Math.random() * 21) * 1000;   // entre 9 e 30 segundos
+
+  function novaRodada(dur) {
     const f = festa;
     f.rodada++;
     f.p = PERGUNTAS[f.banco[(f.rodada - 1) % f.banco.length]];
     f.usadas = [];
     f.ini = performance.now();
-    f.dur = (9 + Math.random() * 21) * 1000;           // pavio secreto: entre 9 e 30 segundos
-    f.estourou = false;
+    f.dur = dur || pavioSecreto();                     // online: o anfitrião sorteia e manda para todos
+    f.estourou = false; f.pedido = false; f.pendente = false;
     $("aRodada").textContent = `RODADA ${f.rodada}`;
     $("aPerg").textContent = f.p.q;
     $("fLog").textContent = "o baiacu começou a encher...";
@@ -1074,7 +1091,10 @@ body.festa #peixe, body.festa #hud { display: none; }
     const b = $("baiacu");
     b.style.setProperty("--s", (1 + prog * 0.8).toFixed(3));
     b.classList.toggle("nervoso", prog > 0.7);
-    if (prog >= 1) estourar();
+    if (prog < 1) return;
+    if (!f.online) return estourar();
+    // online só o anfitrião decide o estouro; os outros esperam o aviso
+    if (souHost() && !f.pedido) { f.pedido = true; mandar({ t: "fpum", rodada: f.rodada }); }
   }
 
   function renderRoda() {
@@ -1090,7 +1110,17 @@ body.festa #peixe, body.festa #hud { display: none; }
     renderRoda();
     $("segura").textContent = `🐡 com ${j.nome}`;
     clearTimeout(f.robo);
-    if (j.robo) {
+    f.enviado = false;
+    if (f.online) {
+      const minha = j.id === eu;
+      $("fEntrada").classList.toggle("on", minha);
+      if (!minha) { $("resp").blur(); $("fResp").blur(); return; }
+      $("fVez").textContent = "🐡 TÁ COM VOCÊ! RESPONDE E PASSA";
+      $("fAviso").textContent = "";
+      $("fResp").value = "";
+      if (navigator.vibrate) navigator.vibrate(80);
+      setTimeout(() => $("fResp").focus(), 60);
+    } else if (j.robo) {
       $("fEntrada").classList.remove("on");
       f.robo = setTimeout(roboJoga, 1200 + Math.random() * 3300);
     } else {
@@ -1121,6 +1151,7 @@ body.festa #peixe, body.festa #hud { display: none; }
     e.preventDefault();
     const f = festa;
     if (!f || f.estourou || f.js[f.vez].robo) return;
+    if (f.online && (f.js[f.vez].id !== eu || f.enviado)) return;
     const txt = $("fResp").value.trim();
     if (!txt) return;
     const ach = achar(f.p, txt);
@@ -1133,13 +1164,19 @@ body.festa #peixe, body.festa #hud { display: none; }
       $("fResp").select();
       return;
     }
+    if (f.online) {
+      f.enviado = true;
+      $("fAviso").textContent = "passando...";
+      return mandar({ t: "fresp", id: eu, rodada: f.rodada, nome: ach.nome, tier: ach.tier });
+    }
     aceitar(ach);
   });
 
   function aceitar(ach) {
     const f = festa, j = f.js[f.vez], faixa = FAIXAS[ach.tier];
     f.usadas.push(ach);
-    $("usadas").insertAdjacentHTML("beforeend", `<span style="color:${faixa.cor}">${faixa.emoji} ${ach.nome}</span>`);
+    f.pendente = false;
+    $("usadas").insertAdjacentHTML("beforeend", `<span style="color:${faixa.cor}">${faixa.emoji} ${esc(ach.nome)}</span>`);
     let msg = `${j.nome}: "${ach.nome}" · ${faixa.nome.toLowerCase()}`;
     j.barra += faixa.pts;
     if (j.barra >= META) {
@@ -1171,14 +1208,24 @@ body.festa #peixe, body.festa #hud { display: none; }
     const restam = vivos();
     if (restam.length <= 1) { f.prox = setTimeout(podio, 2000); return; }
     if (j.fora) f.vez = proximoVivo(f.vez);
-    f.prox = setTimeout(novaRodada, 2600);
+    // online: quem for o anfitrião na hora sorteia o próximo pavio (se ele saiu, o próximo da fila assume)
+    f.prox = f.online ? setTimeout(() => { if (festa === f && souHost()) mandar({ t: "fround", rodada: f.rodada + 1, dur: pavioSecreto() }); }, 2600)
+      : setTimeout(novaRodada, 2600);
   }
 
   function podio() {
     const f = festa, campeao = vivos()[0];
+    f.estourou = true;
+    clearTimeout(f.prox);
+    $("fEntrada").classList.remove("on");
+    $("bRevanche").style.display = !f.online || souHost() ? "" : "none";
+    $("bTrocarJog").textContent = f.online ? "VOLTAR PRA SALA" : "TROCAR JOGADORES";
+    if (f.online && sala) { sala.jogando = false; renderSala(); }
+    if (f.online && campeao.id === eu) toast("🏆 Você sobreviveu à festa!");
     const rank = [campeao, ...f.ordemSaida.slice().reverse()];
     $("pVencedor").textContent = `🏆 ${campeao.nome}`;
-    $("pSub").textContent = `ficou boiando sozinho depois de ${f.rodada} rodada${f.rodada > 1 ? "s" : ""}`;
+    $("pSub").textContent = `ficou boiando sozinho depois de ${f.rodada} rodada${f.rodada > 1 ? "s" : ""}`
+      + (f.online && !souHost() ? " · o anfitrião pode puxar a revanche" : "");
     $("pRank").innerHTML = rank.map((j, i) => `<div><span>${i + 1}º ${j.robo ? "🤖 " : ""}${esc(j.nome)}</span><span>${i === 0 ? "❤️".repeat(j.vidas) : "💀"}</span></div>`).join("");
     clearInterval(f.tick);
     mostrar("podio");
@@ -1227,6 +1274,11 @@ body.festa #peixe, body.festa #hud { display: none; }
       sala.jogadores = Object.values(st).map((l) => l[0]).sort((a, b) => a.entrou - b.entrou || (a.id < b.id ? -1 : 1));
       renderSala();
       renderSalaRevela();
+      // na festa, quem fechou o jogo sai da roda (senão o baiacu fica parado na mão de quem não está mais lá)
+      if (souHost() && festa && festa.online && !festa.estourou) {
+        const ali = new Set(sala.jogadores.map((j) => j.id));
+        festa.js.forEach((j) => { if (!j.fora && !j.saindo && !ali.has(j.id)) { j.saindo = true; mandar({ t: "fsai", id: j.id }); } });
+      }
     });
     ch.on("broadcast", { event: "m" }, ({ payload }) => receber(payload));
     ch.subscribe(async (status) => {
@@ -1249,7 +1301,10 @@ body.festa #peixe, body.festa #hud { display: none; }
 
   function receber(p) {
     if (!sala) return;
+    if (p.t[0] === "f") return receberFesta(p);
     if (p.t === "start") {
+      pararFesta();
+      document.body.classList.remove("festa");
       sala.jogando = true; sala.final = null; sala.placar = {}; sala.total = p.lista.length;
       p.quem.forEach(([id, nome]) => { sala.placar[id] = { nome, pts: 0, res: [] }; });
       if (!sala.placar[eu]) { renderSala(); return; }       // entrou depois do início: espera a próxima
@@ -1281,6 +1336,67 @@ body.festa #peixe, body.festa #hud { display: none; }
       renderSala();
       if (sala.final[0] && sala.final[0].id === eu) toast("🏆 Você desceu mais fundo que todo mundo!");
     }
+  }
+
+  // festa online: o anfitrião é o juiz (pavio e respostas); todos aplicam os mesmos eventos na mesma ordem
+  function receberFesta(p) {
+    if (p.t === "fstart") {
+      sala.jogando = true; sala.final = null;
+      if (!p.quem.some(([id]) => id === eu)) { renderSala(); return; }   // entrou depois do início
+      pararFesta();
+      clearInterval(relogio);
+      $("entrada").classList.remove("on");
+      estado = null;
+      document.body.classList.remove("jogando");
+      document.body.classList.add("festa");
+      camera(260);
+      festa = {
+        online: true,
+        js: p.quem.map(([id, nome]) => ({ id, nome, robo: false, vidas: VIDAS, barra: 0, fora: false })),
+        vez: p.vez, banco: p.banco, rodada: 0, ordemSaida: [],
+      };
+      mostrar("arena");
+      novaRodada(p.dur);
+      return;
+    }
+    const f = festa;
+    if (!f || !f.online) return;
+    if (p.t === "fround") {
+      if (p.rodada === f.rodada + 1 && vivos().length > 1) novaRodada(p.dur);
+    } else if (p.t === "fresp") {
+      if (!souHost() || f.estourou || f.pendente || p.rodada !== f.rodada || f.js[f.vez].id !== p.id) return;
+      if (f.usadas.some((u) => u.nome === p.nome)) return mandar({ t: "frej", id: p.id, nome: p.nome });
+      f.pendente = true;
+      mandar({ t: "fok", rodada: f.rodada, nome: p.nome, tier: p.tier });
+    } else if (p.t === "frej") {
+      if (p.id !== eu) return;
+      f.enviado = false;
+      $("fAviso").textContent = `"${p.nome}" já foi! não vale repetir`;
+      $("fResp").select();
+    } else if (p.t === "fok") {
+      if (p.rodada === f.rodada && !f.estourou) aceitar({ nome: p.nome, tier: p.tier });
+    } else if (p.t === "fpum") {
+      if (p.rodada === f.rodada && !f.estourou) estourar();
+    } else if (p.t === "fsai") {
+      const j = f.js.find((x) => x.id === p.id);
+      if (!j || j.fora) return;
+      const daVez = f.js[f.vez] === j;
+      j.fora = true; j.vidas = 0; f.ordemSaida.push(j);
+      $("fLog").textContent = `📴 ${j.nome} saiu da festa`;
+      if (vivos().length <= 1) { clearInterval(f.tick); f.estourou = true; f.prox = setTimeout(podio, 1500); return; }
+      if (daVez && !f.estourou) { f.vez = proximoVivo(f.vez); iniciarVez(); } else renderRoda();
+    }
+  }
+
+  function iniciarPartidaSala(modo) {
+    if (!souHost()) return;
+    const tema = $("oTema").value, todas = PERGUNTAS.map((_, x) => x);
+    const banco = embaralhar(tema ? todas.filter((x) => PERGUNTAS[x].c === tema) : todas, Math.random);
+    const quem = sala.jogadores.map((j) => [j.id, j.nome]);
+    if (modo === "festa") {
+      if (quem.length < 2) return toast("A festa precisa de pelo menos 2 na sala.");
+      mandar({ t: "fstart", quem, banco, vez: Math.floor(Math.random() * quem.length), dur: pavioSecreto() });
+    } else mandar({ t: "start", lista: banco.slice(0, QTD), quem });
   }
 
   function renderSala() {
@@ -1322,12 +1438,7 @@ body.festa #peixe, body.festa #hud { display: none; }
   $("bConvidar").addEventListener("click", () => {
     enviar(`🌊 Bora jogar Abissal comigo? Entra na sala ${sala.cod}:\n${location.origin}${location.pathname}?sala=${sala.cod}`);
   });
-  $("bComecarSala").addEventListener("click", () => {
-    if (!souHost()) return;
-    const tema = $("oTema").value, todas = PERGUNTAS.map((_, x) => x);
-    const lista = embaralhar(tema ? todas.filter((x) => PERGUNTAS[x].c === tema) : todas, Math.random).slice(0, QTD);
-    mandar({ t: "start", lista, quem: sala.jogadores.map((j) => [j.id, j.nome]) });
-  });
+  $("bComecarSala").addEventListener("click", () => iniciarPartidaSala($("oModo").value));
 
   const codSala = new URLSearchParams(location.search).get("sala");
   atualizarInicio();
